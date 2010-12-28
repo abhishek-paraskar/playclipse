@@ -113,6 +113,15 @@ public final class Navigation {
 		openOrCreate(file);
 	}
 
+	/**
+	 * 
+	 * @param viewName view name starting with "app/..."
+	 */
+	public void goToViewAbs(String viewName) {
+		IFile file = project.getFile(viewName);
+		openOrCreate(file);
+	}
+
 	public void openOrCreate(String path) {
 		IFile file = editorHelper.getProject().getFile(path);
 		openOrCreate(file);
@@ -131,11 +140,13 @@ public final class Navigation {
 		String path = file.getFullPath().toString();
 		if (MessageDialog.openConfirm(
 				window.getShell(),
-				"Playclipse",
+				"JapidPlayclipse",
 				"The file " + path + " can't be found, do you want to create it?")) {
 			String[] titleArr = path.split("/");
 			String title = titleArr[titleArr.length - 1].replace(".html", "");
 			String content = CodeTemplates.view(title);
+			if (path.contains("japidviews"))
+					content = CodeTemplates.japidView(title);
 			FilesAccess.createAndOpen(file, content, FilesAccess.FileType.HTML);
 		}
 	}
@@ -161,5 +172,9 @@ public final class Navigation {
 		}
 		return null;
 	}
+
+	public void goToJapidView(String viewName) {
+		IFile file = project.getFile("app/japidviews/" + viewName);
+		openOrCreate(file);	}
 
 }

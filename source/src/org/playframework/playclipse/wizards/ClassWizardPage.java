@@ -17,6 +17,7 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -29,6 +30,8 @@ public abstract class ClassWizardPage extends PlayWizardPage {
 
 	private Button packageBrowse;
 
+	protected boolean useJapid;
+	
 	protected Text packageText;
 
 	protected abstract String defaultPackage();
@@ -56,6 +59,7 @@ public abstract class ClassWizardPage extends PlayWizardPage {
 		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
 		containerText.setLayoutData(gd);
 		containerText.addModifyListener(new ModifyListener() {
+			@Override
 			public void modifyText(ModifyEvent e) {
 				dialogChanged();
 			}
@@ -63,6 +67,7 @@ public abstract class ClassWizardPage extends PlayWizardPage {
 		Button button = new Button(container, SWT.PUSH);
 		button.setText("Browse...");
 		button.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				handleBrowse();
 			}
@@ -74,6 +79,7 @@ public abstract class ClassWizardPage extends PlayWizardPage {
 		gd = new GridData(GridData.FILL_HORIZONTAL);
 		packageText.setLayoutData(gd);
 		packageText.addModifyListener(new ModifyListener() {
+			@Override
 			public void modifyText(ModifyEvent e) {
 				dialogChanged();
 			}
@@ -81,6 +87,7 @@ public abstract class ClassWizardPage extends PlayWizardPage {
 		packageBrowse = new Button(container, SWT.PUSH);
 		packageBrowse.setText("Browse...");
 		packageBrowse.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				handlePackageBrowse();
 			}
@@ -92,8 +99,21 @@ public abstract class ClassWizardPage extends PlayWizardPage {
 		gd = new GridData(GridData.FILL_HORIZONTAL);
 		name.setLayoutData(gd);
 		name.addModifyListener(new ModifyListener() {
+			@Override
 			public void modifyText(ModifyEvent e) {
 				dialogChanged();
+			}
+		});
+		
+		final Button useJapidButton = new Button(container, SWT.CHECK);
+		useJapidButton.setText("Use Japid");
+		useJapidButton.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				useJapid = useJapidButton.getSelection();
+			}
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) {
 			}
 		});
 
@@ -102,6 +122,7 @@ public abstract class ClassWizardPage extends PlayWizardPage {
 		setControl(container);
 	}
 
+	@Override
 	protected void initialize() {
 		super.initialize();
 		if (selection != null && selection.isEmpty() == false

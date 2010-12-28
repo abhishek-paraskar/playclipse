@@ -26,6 +26,7 @@ public class PlayBuilder extends IncrementalProjectBuilder implements IPropertyC
 	}
 
 	class ResourceVisitor implements IResourceVisitor {
+		@Override
 		public boolean visit(IResource resource) {
 			if (!(resource instanceof IFile)) return true;
 			IFile file = (IFile)resource;
@@ -43,17 +44,10 @@ public class PlayBuilder extends IncrementalProjectBuilder implements IPropertyC
 		}
 	}
 
-	public static final String BUILDER_ID = "org.playframework.playclipse.PlayBuilder";
+	public static final String BUILDER_ID = "org.playframework.playclipse.JapidPlayBuilder";
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.core.internal.events.InternalBuilder#build(int,
-	 *      java.util.Map, org.eclipse.core.runtime.IProgressMonitor)
-	 */
 	@Override
-	@SuppressWarnings("unchecked")
-	protected IProject[] build(int kind, Map args, IProgressMonitor monitor) throws CoreException {
+	protected IProject[] build(int kind, @SuppressWarnings("rawtypes") Map args, IProgressMonitor monitor) throws CoreException {
 		// TODO: Make incremental
 		fullBuild(monitor);
 		return null;
@@ -70,7 +64,7 @@ public class PlayBuilder extends IncrementalProjectBuilder implements IPropertyC
 	}
 
 	protected void fullBuild(final IProgressMonitor monitor) throws CoreException {
-		System.out.println("Play full build...");
+		System.out.println("Play full build..., not really a full build -- bran");
 		try {
 			getProject().accept(new ResourceVisitor());
 		} catch (CoreException e) {

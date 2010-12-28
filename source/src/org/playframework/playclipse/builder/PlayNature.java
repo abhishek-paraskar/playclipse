@@ -15,18 +15,15 @@ public class PlayNature implements IProjectNature {
 	/**
 	 * ID of this project nature
 	 */
-	public static final String NATURE_ID = "org.playframework.playclipse.playNature";
+	public static final String NATURE_ID = "org.playframework.playclipse.JapidPlayNature";
 
 	private IProject project;
 	private IJavaProject javaProject;
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.core.resources.IProjectNature#configure()
-	 */
+
+	@Override
 	public void configure() throws CoreException {
-		System.out.println("Nature Configure");
+		System.out.println("configure Japid Nature ");
 		IProjectDescription desc = project.getDescription();
 		ICommand[] commands = desc.getBuildSpec();
 
@@ -55,6 +52,7 @@ public class PlayNature implements IProjectNature {
 	 * 
 	 * @see org.eclipse.core.resources.IProjectNature#deconfigure()
 	 */
+	@Override
 	public void deconfigure() throws CoreException {
 		IProjectDescription description = getProject().getDescription();
 		ICommand[] commands = description.getBuildSpec();
@@ -71,11 +69,7 @@ public class PlayNature implements IProjectNature {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.core.resources.IProjectNature#getProject()
-	 */
+	@Override
 	public IProject getProject() {
 		return project;
 	}
@@ -84,11 +78,8 @@ public class PlayNature implements IProjectNature {
 		return javaProject;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.core.resources.IProjectNature#setProject(org.eclipse.core.resources.IProject)
-	 */
+
+	@Override
 	public void setProject(IProject project) {
 		this.project = project;
 		this.javaProject = JavaCore.create(project);

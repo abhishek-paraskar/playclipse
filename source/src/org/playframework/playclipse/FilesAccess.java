@@ -21,7 +21,9 @@ package org.playframework.playclipse;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
@@ -39,6 +41,7 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import fr.zenexity.pdt.editors.EditorHelper;
 
 public class FilesAccess {
+	// bran:  these editors seem to be from the another plugin...
 	public enum FileType {
 		JAVA("org.eclipse.jdt.ui.CompilationUnitEditor"),
 		HTML("tk.eclipse.plugin.htmleditor.editors.HTMLEditor"),
@@ -108,18 +111,37 @@ public class FilesAccess {
 		IWorkbenchPage page = getCurrentPage();
 		InputStream source = new ByteArrayInputStream(content.getBytes());
 		try {
+			// make sure the parents are there -- bran
+			prepareFolder((IFolder) file.getParent()); 
+			
 			file.create(source, false, null);
-			page.openEditor(
-					new FileEditorInput(file),
-					type.editorID,
-					true,
-					IWorkbenchPage.MATCH_INPUT);
+			org.eclipse.ui.ide.IDE.openEditor(page, file); 
+//			page.openEditor(
+//					new FileEditorInput(file),
+//					type.editorID,
+//					true,
+//					IWorkbenchPage.MATCH_INPUT);
 		} catch (CoreException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
+	public static void prepareFolder(IFolder folder) {
+		IContainer parent = folder.getParent();
+		if (parent instanceof IFolder) {
+			prepareFolder((IFolder) parent);
+		}
+		if (!folder.exists()) {
+			try {
+				folder.create(false, true, null);
+			} catch (CoreException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	
 	private static IFile getFile(IEditorPart editorPart) {
 		return ((IFileEditorInput)editorPart.getEditorInput()).getFile();
 	}

@@ -31,9 +31,7 @@ import org.playframework.playclipse.editors.route.RouteEditor;
 import fr.zenexity.pdt.editors.EditorHelper;
 
 /**
- * Our sample handler extends AbstractHandler, an IHandler base class.
- * @see org.eclipse.core.commands.IHandler
- * @see org.eclipse.core.commands.AbstractHandler
+ *  go to the action method from the @{...} notation
  */
 public class GoToActionHandler extends AbstractHandler {
 	/**
@@ -68,6 +66,7 @@ public class GoToActionHandler extends AbstractHandler {
 	 * the command has been executed, so let's extract the needed information
 	 * from the application context.
 	 */
+	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		String action = null;
 		EditorHelper editor = EditorHelper.getCurrent(event);
@@ -78,9 +77,20 @@ public class GoToActionHandler extends AbstractHandler {
 			action = fromRoutes(editor);
 			System.out.println("Routes!!");
 		}
+		else {
+			// bran - assuming from the views
+			action = fromView(editor);
+			System.out.println("assuming from a View...");
+		}
 		System.out.println("action = " + action);
 		
-		(new Navigation(editor)).goToAction(action);
-		return null;
+		if (action == null) {
+			System.out.println("no action to go to.");
+			return null;
+		}
+		else {
+			(new Navigation(editor)).goToAction(action);
+			return null;
+		}
 	}
 }

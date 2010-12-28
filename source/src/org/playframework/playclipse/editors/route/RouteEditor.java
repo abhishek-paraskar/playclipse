@@ -14,6 +14,16 @@ import org.playframework.playclipse.editors.PlayEditor;
 
 public class RouteEditor extends PlayEditor {
 
+	private static final String COMMENT = "comment";
+
+	private static final String ACTION2 = "action";
+
+	private static final String URL = "url";
+
+	private static final String KEYWORD = "keyword";
+
+	private static final String DEFAULT = "default";
+	
 	public static final String KEYWORD_COLOR = "route_keyword_color";
 	public static final String URL_COLOR = "route_url_color";
 	public static final String COMMENT_COLOR = "route_comment_color";
@@ -27,7 +37,7 @@ public class RouteEditor extends PlayEditor {
 	public static final String SOFT_TABS = "route_soft_tabs";
 	public static final String SOFT_TABS_WIDTH = "route_soft_tabs_width";
 
-	String oldState = "default";
+	String oldState = DEFAULT;
 	IJavaProject javaProject;
 	ModelInspector inspector;
 
@@ -42,11 +52,11 @@ public class RouteEditor extends PlayEditor {
 	@Override
 	public String[] getTypes() {
 		return new String[] {
-				"default",
-				"keyword",
-				"url",
-				"action",
-				"comment"
+				DEFAULT,
+				KEYWORD,
+				URL,
+				ACTION2,
+				COMMENT
 		};
 	}
 
@@ -62,7 +72,7 @@ public class RouteEditor extends PlayEditor {
 		BestMatch match = findBestMatch(region.getOffset(), action);
 		if(match != null) {
 			if(match.is(action)) {
-				return match.hyperlink("action", 1, 0);
+				return match.hyperlink(ACTION2, 1, 0);
 			}
 		}
 		return null;
@@ -70,16 +80,16 @@ public class RouteEditor extends PlayEditor {
 
 	@Override
 	public String getStylePref(String type) {
-		if(type.equals("keyword")) {
+		if(type.equals(KEYWORD)) {
 			return KEYWORD_COLOR;
 		}
-		if(type.equals("url")) {
+		if(type.equals(URL)) {
 			return URL_COLOR;
 		}
-		if(type.equals("comment")) {
+		if(type.equals(COMMENT)) {
 			return COMMENT_COLOR;
 		}
-		if(type.equals("action")) {
+		if(type.equals(ACTION2)) {
 			return ACTION_COLOR;
 		}
 		return DEFAULT_COLOR;
@@ -97,41 +107,41 @@ public class RouteEditor extends PlayEditor {
 	@Override
 	public String scan() {
 		if (isNext("\n")) {
-			return found("default", 1);
+			return found(DEFAULT, 1);
 		}
-		if (state != "comment" && isNext("#")) {
-			return found("comment", 0);
+		if (state != COMMENT && isNext("#")) {
+			return found(COMMENT, 0);
 		}
-		if (state == "default" && isNext("GET")) {
-			return found("keyword", 0);
+		if (state == DEFAULT && isNext("GET")) {
+			return found(KEYWORD, 0);
 		}
-		if (state == "default" && isNext("POST")) {
-			return found("keyword", 0);
+		if (state == DEFAULT && isNext("POST")) {
+			return found(KEYWORD, 0);
 		}
-		if (state == "default" && isNext("PUT")) {
-			return found("keyword", 0);
+		if (state == DEFAULT && isNext("PUT")) {
+			return found(KEYWORD, 0);
 		}
-		if (state == "default" && isNext("DELETE")) {
-			return found("keyword", 0);
+		if (state == DEFAULT && isNext("DELETE")) {
+			return found(KEYWORD, 0);
 		}
-		if (state == "default" && isNext("OPTIONS")) {
-			return found("keyword", 0);
+		if (state == DEFAULT && isNext("OPTIONS")) {
+			return found(KEYWORD, 0);
 		}
-		if (state == "default" && isNext("HEAD")) {
-			return found("keyword", 0);
+		if (state == DEFAULT && isNext("HEAD")) {
+			return found(KEYWORD, 0);
 		}
-		if (state == "default" && isNext("*")) {
-			return found("keyword", 0);
+		if (state == DEFAULT && isNext("*")) {
+			return found(KEYWORD, 0);
 		}
-		if ((state == "keyword" || state == "url") && nextIsSpace()) {
+		if ((state == KEYWORD || state == URL) && nextIsSpace()) {
 			oldState = state;
-			return found("default", 0);
+			return found(DEFAULT, 0);
 		}
-		if (state == "default" && isNext("/")) {
-			return found("url", 0);
+		if (state == DEFAULT && isNext("/")) {
+			return found(URL, 0);
 		}
-		if (state == "default" && oldState == "url" && !nextIsSpace()) {
-			return found("action", 0);
+		if (state == DEFAULT && oldState == URL && !nextIsSpace()) {
+			return found(ACTION2, 0);
 		}
 		return null;
 	}

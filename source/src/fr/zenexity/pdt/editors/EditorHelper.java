@@ -69,6 +69,9 @@ public final class EditorHelper {
 
 	public IProject getProject() {
 		IFile curfile = ((IFileEditorInput)textEditor.getEditorInput()).getFile();
+		
+		// bran: shall it be curfile.getProject()?
+		
 		IContainer container = curfile.getParent();
 		while (container != null) {
 			if (container instanceof IProject) {

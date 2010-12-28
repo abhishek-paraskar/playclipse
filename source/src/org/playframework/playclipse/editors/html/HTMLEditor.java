@@ -24,6 +24,18 @@ import org.playframework.playclipse.editors.PlayEditor;
 
 public class HTMLEditor extends PlayEditor {
 
+	private static final String ACTION_IN_TAG2 = "action_in_tag";
+	private static final String INCLUDE2 = "include";
+	private static final String EXTENDS = "extends";
+	private static final String KEYWORD = "keyword";
+	private static final String SKIPPED = "skipped";
+	private static final String ACTION2 = "action";
+	private static final String EXPRESSION = "expression";
+	private static final String TAG2 = "tag";
+	private static final String STRING = "string";
+	private static final String HTML = "html";
+	private static final String DOCTYPE = "doctype";
+	private static final String DEFAULT = "default";
 	public static final String DEFAULT_COLOR = "html_default_color";
 	public static final String DOCTYPE_COLOR = "html_doctype_color";
 	public static final String HTML_COLOR = "html_html_color";
@@ -49,34 +61,35 @@ public class HTMLEditor extends PlayEditor {
 		softTabsWidth = store.getInt(SOFT_TABS_WIDTH);
 	}
 
+	@Override
 	public String[] getTypes() {
-		return new String[] {"default", "doctype", "html", "string", "tag", "expression", "action", "skipped", "keyword"};
+		return new String[] {DEFAULT, DOCTYPE, HTML, STRING, TAG2, EXPRESSION, ACTION2, SKIPPED, KEYWORD};
 	}
 
 	@Override
 	public String getStylePref(String type) {
-		if(type.equals("doctype")) {
+		if(type.equals(DOCTYPE)) {
 			return DOCTYPE_COLOR;
 		}
-		if(type.equals("html")) {
+		if(type.equals(HTML)) {
 			return HTML_COLOR;
 		}
-		if(type.equals("string")) {
+		if(type.equals(STRING)) {
 			return STRING_COLOR;
 		}
-		if(type.equals("tag")) {
+		if(type.equals(TAG2)) {
 			return TAG_COLOR;
 		}
-		if(type.equals("expression")) {
+		if(type.equals(EXPRESSION)) {
 			return EXPR_COLOR;
 		}
-		if(type.equals("action")) {
+		if(type.equals(ACTION2)) {
 			return ACTION_COLOR;
 		}
-		if(type.equals("skipped")) {
+		if(type.equals(SKIPPED)) {
 			return SKIPPED_COLOR;
 		}
-		if(type.equals("keyword")) {
+		if(type.equals(KEYWORD)) {
 			return KEYWORD_COLOR;
 		}
 		return DEFAULT_COLOR;
@@ -84,6 +97,7 @@ public class HTMLEditor extends PlayEditor {
 
 	// Auto-close
 
+	@Override
 	public String autoClose(char pc, char c, char nc) {
 		if(c == '<') {
 			return ">";
@@ -126,18 +140,19 @@ public class HTMLEditor extends PlayEditor {
 
 	// Template
 
+	@Override
 	public void templates(String contentType, String ctx) {
-		if(contentType == "default" || contentType == "html" || contentType == "string") {
+		if(contentType == DEFAULT || contentType == HTML || contentType == STRING) {
 			template("$", "Insert dynamic expression", "$${${}}${cursor}");
-			template("tag", "Insert tag without body", "#{${name} ${}/}${cursor}");
-			template("action", "Insert action", "@{${}}${cursor}");
-			template("tag", "Insert tag with body", "##{${name} ${}}${cursor}#{/${name}}");
+			template(TAG2, "Insert tag without body", "#{${name} ${}/}${cursor}");
+			template(ACTION2, "Insert action", "@{${}}${cursor}");
+			template(TAG2, "Insert tag with body", "##{${name} ${}}${cursor}#{/${name}}");
 		}
-		if(contentType == "default") {
+		if(contentType == DEFAULT) {
 			template("if", "Insert a #if tag", "#{if ${}}\n    ${cursor}\n#{/if}");
-			template("extends", "Insert a #extends tag", "#{extends '${}' /}${cursor}");
+			template(EXTENDS, "Insert a #extends tag", "#{extends '${}' /}${cursor}");
 			template("list", "Insert a #list tag", "#{list ${}, as:'${i}'}\n    ${cursor}\n#{/list>");
-			template("doctype", "Insert an HTML5 doctype element", "<!DOCTYPE html>");
+			template(DOCTYPE, "Insert an HTML5 doctype element", "<!DOCTYPE html>");
 		}
 		// Magic
 		Matcher isTag = Pattern.compile("<([a-zA-Z]+)>").matcher(ctx);
@@ -155,23 +170,24 @@ public class HTMLEditor extends PlayEditor {
 	Pattern action_in_tag = Pattern.compile("#\\{.+(@.+[)])");
 	Pattern tag = Pattern.compile("#\\{([-a-zA-Z0-9.]+) ");
 
+	@Override
 	public IHyperlink detectHyperlink(ITextViewer textViewer, IRegion region) {
 		BestMatch match = findBestMatch(region.getOffset(), include, extend_s, action, action_in_tag, tag);
 		if(match != null) {
 			if(match.is(action)) {
-				return match.hyperlink("action", 0, 0);
+				return match.hyperlink(ACTION2, 0, 0);
 			}
 			if(match.is(tag)) {
-				return match.hyperlink("tag", 2, -1);
+				return match.hyperlink(TAG2, 2, -1);
 			}
 			if(match.is(extend_s)) {
-				return match.hyperlink("extends", match.matcher.start(1) - match.matcher.start(), -1);
+				return match.hyperlink(EXTENDS, match.matcher.start(1) - match.matcher.start(), -1);
 			}
 			if(match.is(include)) {
-				return match.hyperlink("include", match.matcher.start(1) - match.matcher.start(), -1);
+				return match.hyperlink(INCLUDE2, match.matcher.start(1) - match.matcher.start(), -1);
 			}
 			if(match.is(action_in_tag)) {
-				return match.hyperlink("action_in_tag", match.matcher.start(1) - match.matcher.start(), 0);
+				return match.hyperlink(ACTION_IN_TAG2, match.matcher.start(1) - match.matcher.start(), 0);
 			}	
 		}
 		return null;
@@ -181,109 +197,109 @@ public class HTMLEditor extends PlayEditor {
 
 	boolean consumeString = false;
 	char openedString = ' ';
-	String oldState = "default";
-	String oldStringState = "default";
+	String oldState = DEFAULT;
+	String oldStringState = DEFAULT;
 
 	@Override
 	protected void reset() {
 		super.reset();
 		consumeString = false;
-		oldState = "default";
+		oldState = DEFAULT;
 	}
 
 	@Override
 	public String scan() {
-		if(isNext("*{") && state != "skipped") {
+		if(isNext("*{") && state != SKIPPED) {
 			oldState = state;
-			return found("skipped", 0);
+			return found(SKIPPED, 0);
 		}
-		if(state == "skipped") {
+		if(state == SKIPPED) {
 			if(isNext("}*")) {
 				return found(oldState, 2);
 			}
 		}
-		if(state == "default" || state == "html" || state == "string") {
+		if(state == DEFAULT || state == HTML || state == STRING) {
 			if(isNext("#{")) {
 				oldState = state;
-				return found("tag", 0);
+				return found(TAG2, 0);
 			}
 			if(isNext("${")) {
 				oldState = state;
-				return found("expression", 0);
+				return found(EXPRESSION, 0);
 			}
 			if(isNext("@{") || isNext("@@{")) {
 				oldState = state;
-				return found("action", 0);
+				return found(ACTION2, 0);
 			}
 		}
-		if(state == "tag" || state == "expression" || state == "action") {
+		if(state == TAG2 || state == EXPRESSION || state == ACTION2) {
 			if(isNext("}")) {
 				return found(oldState, 1);
 			}
 		}
-		if(state == "default") {
+		if(state == DEFAULT) {
 			if(isNext("<!DOCTYPE")) {
-				return found("doctype", 0);
+				return found(DOCTYPE, 0);
 			}
 			if(isNext("<")) {
-				return found("html", 0);
+				return found(HTML, 0);
 			}
 			if(isNext("var ")) {
-				return found("keyword", 0);
+				return found(KEYWORD, 0);
 			}
 			if(isNext("def ")) {
-				return found("keyword", 0);
+				return found(KEYWORD, 0);
 			}
 			if(isNext("return ")) {
-				return found("keyword", 0);
+				return found(KEYWORD, 0);
 			}
 			if(isNext("function(")) {
-				return found("keyword", 0);
+				return found(KEYWORD, 0);
 			}
 			if(isNext("function ")) {
-				return found("keyword", 0);
+				return found(KEYWORD, 0);
 			}
 			if(isNext("if(")) {
-				return found("keyword", 0);
+				return found(KEYWORD, 0);
 			}
 			if(isNext("if ")) {
-				return found("keyword", 0);
+				return found(KEYWORD, 0);
 			}
 			if(isNext("else ")) {
-				return found("keyword", 0);
+				return found(KEYWORD, 0);
 			}
 			if(isNext("switch(")) {
-				return found("keyword", 0);
+				return found(KEYWORD, 0);
 			}
 			if(isNext("switch ")) {
-				return found("keyword", 0);
+				return found(KEYWORD, 0);
 			}
 		}
-		if(state == "keyword") {
+		if(state == KEYWORD) {
 			if(isNext(" ") || isNext("(")) {
-				return found("default", 0);
+				return found(DEFAULT, 0);
 			}
 		}
-		if(state == "doctype" || state == "html") {
+		if(state == DOCTYPE || state == HTML) {
 			if(isNext(">")) {
-				return found("default", 1);
+				return found(DEFAULT, 1);
 			}
 		}
-		if(state == "html") {
+		if(state == HTML) {
 			if(isNext("\"")) {
 				openedString = '\"';
 				consumeString = false;
 				oldStringState = state;
-				return found("string", 0);
+				return found(STRING, 0);
 			}
 			if(isNext("'")) {
 				openedString = '\'';
 				consumeString = false;
 				oldStringState = state;
-				return found("string", 0);
+				return found(STRING, 0);
 			}
 		}
-		if(state == "string") {
+		if(state == STRING) {
 			if(isNext(""+openedString) && consumeString) {
 				return found(oldStringState, 1);
 			}

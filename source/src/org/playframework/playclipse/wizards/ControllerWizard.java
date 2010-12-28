@@ -16,7 +16,16 @@ public class ControllerWizard extends PlayWizard {
 
 	@Override
 	protected String getContent(Map<String, String> parameters) {
-		return CodeTemplates.controller(parameters.get("name"), parameters.get("package"));
+		String useJapid = parameters.get("useJapid");
+		String name = parameters.get("name");
+		String packageName = parameters.get("package");
+		
+		if (useJapid != null && Boolean.parseBoolean(useJapid) == true) {
+			return CodeTemplates.japidController(name, packageName);
+		}
+		else {
+			return CodeTemplates.controller(name, packageName);
+		}
 	}
 
 	@Override

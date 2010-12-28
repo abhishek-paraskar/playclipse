@@ -1,8 +1,13 @@
 Eclipse Plugin for Play
 -----------------------
 
-Bug tracker: http://playclipse.lighthouseapp.com/projects/50610-playclipse/
+Adapted from https://github.com/erwan/playclipse
+
+The goal is to make the plugin work with the Japid template engine. 
 
 To install, put the jar file in ECLIPSE_HOME/dropins.
+
+The release note is the source directory.
+
 
 

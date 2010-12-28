@@ -56,6 +56,7 @@ public abstract class PlayWizard extends Wizard implements INewWizard {
 	public boolean performFinish() {
 		final Map<String, String> parameters = page.getParameters();
 		IRunnableWithProgress op = new IRunnableWithProgress() {
+			@Override
 			public void run(IProgressMonitor monitor) throws InvocationTargetException {
 				try {
 					doFinish(parameters, monitor);
@@ -111,6 +112,7 @@ public abstract class PlayWizard extends Wizard implements INewWizard {
 		monitor.worked(1);
 		monitor.setTaskName("Opening file for editing...");
 		getShell().getDisplay().asyncExec(new Runnable() {
+			@Override
 			public void run() {
 				IWorkbenchPage page =
 					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();

@@ -23,6 +23,27 @@ public final class CodeTemplates {
 		return builder.toString();
 	}
 
+	public static String japidController(String name, String packageName) {
+		StringBuilder builder = new StringBuilder();
+		builder.append("package ");
+		builder.append(packageName);
+		builder.append(";\n\n");
+		builder.append("import play.mvc.*;\n\n");
+		builder.append("import cn.bran.play.JapidController;\n\n");
+		builder.append("// make sure you have \n");
+		builder.append("// \t\tmodule.japid=${play.path}/modules/japid-head\n");
+		builder.append("// in your application.conf file, and \"play eclipsify\"\n");
+		builder.append("// if you notice the JapidController is not found.\n\n");
+		builder.append("public class ");
+		builder.append(name);
+		builder.append(" extends JapidController {\n\n");
+		builder.append("    public static void index() {\n");
+		builder.append("        renderJapid(\"Hello world!\", 123);\n");
+		builder.append("    }\n\n");
+		builder.append("}\n");
+		return builder.toString();
+	}
+	
 	public static String view(String title) {
 		StringBuilder builder = new StringBuilder();
 		builder.append("#{extends 'main.html' /}\n");
@@ -33,6 +54,16 @@ public final class CodeTemplates {
 		return builder.toString();
 	}
 
+	public static String japidView(String title) {
+		StringBuilder builder = new StringBuilder();
+		builder.append("`extends \"main.html\"\n");
+		builder.append("#{set title:\"");
+		builder.append(title);
+		builder.append("\" /}\n\n");
+		builder.append("Here goes your Japid template content.");
+		return builder.toString();
+	}
+	
 	public static String model(String modelName, String packageName) {
 		StringBuilder builder = new StringBuilder();
 		builder.append("package ");
