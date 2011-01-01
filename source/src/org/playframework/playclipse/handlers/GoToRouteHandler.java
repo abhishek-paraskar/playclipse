@@ -80,7 +80,7 @@ public class GoToRouteHandler extends AbstractHandler {
 		IEditorPart editorPart;
 		if (file.exists()) {
 			try {
-				editorPart = FilesAccess.openFile(file, window);
+				editorPart = FilesAccess.openFile(file);
 				if (action != null) {
 					FilesAccess.goToLineContaining(editorPart, action);
 				}
@@ -96,6 +96,7 @@ public class GoToRouteHandler extends AbstractHandler {
 		}
 	}
 
+	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 
 		EditorHelper editor = EditorHelper.getCurrent(event);

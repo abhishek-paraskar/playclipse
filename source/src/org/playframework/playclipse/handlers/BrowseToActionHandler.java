@@ -18,56 +18,32 @@
 
 package org.playframework.playclipse.handlers;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.handlers.HandlerUtil;
 import org.playframework.playclipse.Navigation;
-
-import fr.zenexity.pdt.editors.EditorHelper;
 
 /**
  *  go to the action method from the @{...} notation
  */
-public class GoToActionHandler extends AbstractHandler {
+public class BrowseToActionHandler extends AbstractHandler {
 	private static final String APP_VIEWS = "app/views";
 	private static final String APP_JAPIDVIEWS = "app/japidviews";
 
 	/**
 	 * The constructor.
 	 */
-	public GoToActionHandler() {
+	public BrowseToActionHandler() {
 	}
 
-	private String fromView(EditorHelper editor) {
-		String action  = getDefaultAction(editor);
-		String controller = (action != null && action.contains(".")) ? action.substring(0, action.lastIndexOf('.')) : null;
-		String line = editor.getLine(editor.getCurrentLineNo());
-		Pattern pt = Pattern.compile("@\\{([^}]+)\\}");
-		Matcher m = pt.matcher(line);
-		if (m.find()) {
-			action = m.group().replace("@{", "").replace("}", "").replace("(.*)", "");
-			if (action.contains("(")) {
-				action = action.substring(0, action.indexOf("(")).trim();
-			}
-			if (!action.contains(".")) {
-//				action = editor.enclosingDirectory() + "." + action;
-				action = controller + "." + action;
-			}
-		} 
-		return action;
-	}
-
-	private String fromRoutes(EditorHelper editor) {
-		String line = editor.getLine(editor.getCurrentLineNo());
-		String[] lineArr = line.trim().split("\\s+");
-		return lineArr[lineArr.length - 1];
-	}
-
+	
 	/**
 	 * the command has been executed, so let's extract the needed information
 	 * from the application context.
@@ -77,35 +53,33 @@ public class GoToActionHandler extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		String action = null;
-		EditorHelper editor = EditorHelper.getCurrent(event);
-		if(editor == null) {
-			return null;
-		}
-		else {
-			action = fromView(editor);
-		}
+		// probably a selection from the explorer popup.
+		IWorkbenchWindow win = HandlerUtil.getActiveWorkbenchWindow(event);
+		ISelection activeMenuSelection = HandlerUtil.getActiveMenuSelection(event);
 		
+		IProject p  = null;
+		if (activeMenuSelection instanceof IStructuredSelection) {
+			IStructuredSelection selection = (IStructuredSelection)activeMenuSelection;
+			p = Navigation.getProject(selection);
+			Object firstElement = selection.getFirstElement();
+			if (firstElement instanceof IFile) {
+				IFile f = (IFile) firstElement;
+				IPath pa = f.getProjectRelativePath();
+				action = getDefaultActionFromPath(pa.toString());
+			}
+
+		}
+
 		
 		System.out.println("action = " + action);
 		
-		if (action == null) {
+		if (action == null || p == null) {
 			System.out.println("no action to go to.");
-			return null;
 		}
 		else {
-			(new Navigation(editor)).goToAction(action);
-			return null;
+			new Navigation(win, p).goToAction(action);
 		}
-	}
-
-	private String getDefaultAction(EditorHelper editor) {
-		String action = null;
-		String relativePath = getCurrentEditorRelativePathFromProject(editor);
-		action = getDefaultActionFromPath(relativePath);
-		if (action == null && relativePath.equals("conf/routes")) {
-				action = fromRoutes(editor);
-		}
-		return action;
+		return null;
 	}
 
 	/**
@@ -127,14 +101,4 @@ public class GoToActionHandler extends AbstractHandler {
 		return action;
 	}
 
-	/**
-	 * @param editor
-	 * @return a path from the project root:  e.g.: app/views/my/Controller/action.html 
-	 */
-	private String getCurrentEditorRelativePathFromProject(EditorHelper editor) {
-		IPath path = ((IFileEditorInput) editor.textEditor.getEditorInput()).getFile().getFullPath();
-		String pname = editor.getProject().getName();
-		String relativePath = path.toString().substring(pname.length() + 2);
-		return relativePath;
-	}
 }

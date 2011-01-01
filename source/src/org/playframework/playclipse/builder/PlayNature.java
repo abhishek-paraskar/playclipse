@@ -15,7 +15,7 @@ public class PlayNature implements IProjectNature {
 	/**
 	 * ID of this project nature
 	 */
-	public static final String NATURE_ID = "org.playframework.playclipse.JapidPlayNature";
+	public static final String NATURE_ID = "org.playframework.playclipse.playNature";
 
 	private IProject project;
 	private IJavaProject javaProject;

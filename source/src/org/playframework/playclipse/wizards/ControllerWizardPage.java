@@ -2,14 +2,9 @@ package org.playframework.playclipse.wizards;
 
 import java.util.Map;
 
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.IFileEditorInput;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.texteditor.ITextEditor;
+import org.playframework.playclipse.FilesAccess;
 
 public class ControllerWizardPage extends ClassWizardPage {
 
@@ -45,24 +40,11 @@ public class ControllerWizardPage extends ClassWizardPage {
 	protected void initialize() {
 		super.initialize();
 		if (containerText.getText().trim().length() ==0) {
-			IProject proj = getEditorProject();
+			IProject proj = FilesAccess.getEditorProject();
 			if (proj != null) {
 				String pname = proj.getName();
 				containerText.setText("/" + pname + "/app/controllers");
 			}
 		}
 	}
-
-	private static IProject getEditorProject() {
-		ITextEditor editor = (ITextEditor) PlatformUI.getWorkbench()
-		 	.getActiveWorkbenchWindow().getActivePage().getActiveEditor();
-
-		try {
-			IFile curfile = ((IFileEditorInput) editor.getEditorInput()).getFile();
-			return curfile.getProject();
-		} catch (Exception e) {
-			return null;
-		}
-	}
-	
 }

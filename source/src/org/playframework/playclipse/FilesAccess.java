@@ -20,20 +20,27 @@ package org.playframework.playclipse;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.Iterator;
 
+import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.ITextEditor;
@@ -53,7 +60,7 @@ public class FilesAccess {
 		}
 	}
 
-	public static IEditorPart openFile(IFile file, IWorkbenchWindow window) throws CoreException {
+	public static IEditorPart openFile(IFile file) throws CoreException {
 		IEditorPart result = null;
 		IWorkbenchPage page = getCurrentPage();
 		IMarker marker;
@@ -152,5 +159,69 @@ public class FilesAccess {
 		IWorkbenchPage page = win.getActivePage();
 		return page;
 	}
+	
+	// bran -- a few utility methods
+	public static IProject getEditorProject() {
+		try {
+			IFile curfile = getActiveFile();
+			if (curfile != null) {
+				return curfile.getProject();
+			}
+		} catch (Exception e) {
+		}
+		return null;
+	}
 
+	public static IFile getActiveFile() {
+		ITextEditor editor = getActiveEditor();
+		try {
+			IFile curfile = ((IFileEditorInput) editor.getEditorInput()).getFile();
+			return curfile;
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	/**
+	 * @return a relative path from the project root, without the project name
+	 */
+	public static String getActiveFilePath() {
+		try {
+			return getActiveFile().getProjectRelativePath().toString();
+		} catch (Exception e) {
+		}
+		return null;
+	}
+	
+	/**
+	 * @return
+	 */
+	private static ITextEditor getActiveEditor() {
+		ITextEditor editor = (ITextEditor) PlatformUI.getWorkbench()
+		 	.getActiveWorkbenchWindow().getActivePage().getActiveEditor();
+		return editor;
+	}
+
+	/**
+	 * good for extract project from pop menu selection in project explorer for example. 
+	 * @param event
+	 * @param project
+	 * @return
+	 */
+	public static IProject getProjectFromMenuSelection(ExecutionEvent event) {
+		IProject project = null;
+		ISelection activeMenuSelection = HandlerUtil.getActiveMenuSelection(event);
+		if (activeMenuSelection instanceof IStructuredSelection) {
+			IStructuredSelection selection = (IStructuredSelection)activeMenuSelection;
+			for (Iterator<?> it = ((IStructuredSelection) selection).iterator(); it.hasNext();) {
+				Object element = it.next();
+				if (element instanceof IProject) {
+					project = (IProject) element;
+				} else if (element instanceof IAdaptable) {
+					project = (IProject) ((IAdaptable) element).getAdapter(IProject.class);
+				}
+			}		
+		}
+		return project;
+	}
 }

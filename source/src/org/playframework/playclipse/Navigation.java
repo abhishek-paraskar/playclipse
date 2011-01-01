@@ -21,15 +21,21 @@ import org.eclipse.ui.IWorkbenchWindow;
 import fr.zenexity.pdt.editors.EditorHelper;
 
 public final class Navigation {
-	private EditorHelper editorHelper;
+//	private EditorHelper editorHelper;
 	private IWorkbenchWindow window;
 	private IProject project;
 	private IJavaProject javaProject;
 
 	public Navigation(EditorHelper editorHelper) {
-		this.editorHelper = editorHelper;
-		this.window = this.editorHelper.getWindow();
-		this.project = this.editorHelper.getProject();
+//		this.editorHelper = editorHelper;
+		this.window = editorHelper.getWindow();
+		this.project = editorHelper.getProject();
+		this.javaProject = JavaCore.create(project);
+	}
+
+	public Navigation(IWorkbenchWindow window,  IProject project) {
+		this.window = window;
+		this.project = project;
 		this.javaProject = JavaCore.create(project);
 	}
 
@@ -55,6 +61,14 @@ public final class Navigation {
 		System.out.println("goToAction for class: " + fullClassName);
 		String method = action.substring(action.lastIndexOf('.') + 1);
 		IType type = findType(fullClassName);
+		if (type == null) {
+			MessageDialog.openError(
+					window.getShell(),
+					"JapidPlayclipse",
+					"The controller " + fullClassName + " can't be found.");
+			return;
+		}
+		
 		IFile file;
 		try {
 			file = (IFile)type.getCompilationUnit().getCorrespondingResource();
@@ -65,7 +79,7 @@ public final class Navigation {
 		}
 		IEditorPart newEditorPart;
 		try {
-			newEditorPart = FilesAccess.openFile(file, this.window);
+			newEditorPart = FilesAccess.openFile(file);
 			focusOrCreateMethod(newEditorPart, type, method);
 		} catch (CoreException e) {
 			// Should never happen
@@ -105,11 +119,6 @@ public final class Navigation {
 
 	public void goToView(String viewName) {
 		IFile file = project.getFile("app/views/" + viewName);
-		if (!file.exists()) {
-			// The file doesn't exist from the absolute path, let's try from the relative path
-			IContainer cont = editorHelper.getFirstParentFor("views");
-			file = project.getFile(cont.getProjectRelativePath() + "/" + viewName);
-		}
 		openOrCreate(file);
 	}
 
@@ -123,14 +132,14 @@ public final class Navigation {
 	}
 
 	public void openOrCreate(String path) {
-		IFile file = editorHelper.getProject().getFile(path);
+		IFile file = project.getFile(path);
 		openOrCreate(file);
 	}
 
 	private void openOrCreate(IFile file) {
 		if (file.exists()) {
 			try {
-				FilesAccess.openFile(file, window);
+				FilesAccess.openFile(file);
 			} catch (CoreException e) {
 				// Should never happen (we checked for file.exist())
 				e.printStackTrace();

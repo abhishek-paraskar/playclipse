@@ -44,7 +44,7 @@ public class PlayBuilder extends IncrementalProjectBuilder implements IPropertyC
 		}
 	}
 
-	public static final String BUILDER_ID = "org.playframework.playclipse.JapidPlayBuilder";
+	public static final String BUILDER_ID = "org.playframework.playclipse.PlayBuilder";
 
 	@Override
 	protected IProject[] build(int kind, @SuppressWarnings("rawtypes") Map args, IProgressMonitor monitor) throws CoreException {

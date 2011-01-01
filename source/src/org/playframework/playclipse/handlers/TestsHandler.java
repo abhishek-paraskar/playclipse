@@ -23,6 +23,7 @@ public class TestsHandler extends AbstractHandler {
 	 * the command has been executed, so let's extract the needed information
 	 * from the application context.
 	 */
+	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		try {
 			String browserPref = PlayPlugin.getDefault().getPreferenceStore().getString(PlayPlugin.PREF_BROWSER);
