@@ -13,7 +13,8 @@ To install, put the jar file in ECLIPSE_HOME/dropins.
         1. The "New controller" command can generate Japid controllers. 
         2. the "Go to view" command can smartly go to either the Groovy based views or Japid views, depending on the context.
 2011/1/1:
-		1. added a few commands to the package explorer context menu.        
+		1. added a few commands to the package explorer context menu.
+		2. added context menu to go to action from a view editor.Works with Play html editor and WST html editor.
 
 
 

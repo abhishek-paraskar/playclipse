@@ -250,7 +250,7 @@
                <separator
                      name="Playclipse.separator3">
                </separator>
-         <menu label="JapidPlay">
+         <menu label="JapidPlay!">
              <visibleWhen>
                   <iterate>
                      <adapt type="org.eclipse.jdt.core.IJavaElement">
@@ -359,7 +359,8 @@
               </visibleWhen>
             </command>
             <separator
-                  name="Playclipse.separator2">
+                  name="Playclipse.separator2"
+                  visible="true">
             </separator>
             <command
                   commandId="Playclipse.addNature"
@@ -406,6 +407,39 @@
             </command>
          </menu>
       </menuContribution>
+            <menuContribution
+                  locationURI="popup:#CompilationUnitEditorContext">
+               <menu
+                     label="JapidPlay!">
+                  <command
+                        commandId="org.playframework.playclipse.commands.goToViewCommand"
+                        label="Go to view"
+                        style="push">
+                  </command>
+               </menu>
+            </menuContribution>
+            <menuContribution
+                  locationURI="popup:org.eclipse.wst.sse.ui.StructuredTextEditor.EditorContext">
+               <menu
+                     label="JapidPlay!">
+                  <command
+                        commandId="org.playframework.playclipse.commands.goToActionCommand"
+                        label="Go to action"
+                        style="push">
+                  </command>
+               </menu>
+            </menuContribution>
+            <menuContribution
+                  locationURI="popup:HTMLEditor.EditorContext">
+               <menu
+                     label="JapidPlay!">
+                  <command
+                        commandId="org.playframework.playclipse.commands.goToActionCommand"
+                        label="Go to action"
+                        style="push">
+                  </command>
+               </menu>
+            </menuContribution>
    </extension>
    <extension
          point="org.eclipse.ui.newWizards">
@@ -531,6 +565,16 @@
     <initializer
           class="org.playframework.playclipse.preferences.PreferenceInitializer">
     </initializer>
+ </extension>
+ <extension
+       point="org.eclipse.ui.services">
+    <sourceProvider
+          provider="playclipse.GotoViewState">
+       <variable
+             name="Playclipse.isEditingView"
+             priorityLevel="workbench">
+       </variable>
+    </sourceProvider>
  </extension>
 
 </plugin>

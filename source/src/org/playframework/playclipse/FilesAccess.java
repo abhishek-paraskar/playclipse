@@ -86,6 +86,7 @@ public class FilesAccess {
 		try {
 			marker = getFile(editor).createMarker(IMarker.TEXT);
 			marker.setAttribute(IMarker.CHAR_START, character);
+			marker.setAttribute(IMarker.CHAR_END, character);
 		} catch (CoreException e) {
 			// Never happens! We got the file from the editor.
 		}
