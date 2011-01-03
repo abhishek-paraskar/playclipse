@@ -18,7 +18,12 @@
 
 package org.playframework.playclipse;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -90,5 +95,31 @@ public class PlayPlugin extends AbstractUIPlugin {
 	 */
 	public static ImageDescriptor getImageDescriptor(String path) {
 		return imageDescriptorFromPlugin(PLUGIN_ID, path);
+	}
+	
+	public static void showError(Exception e) {
+		StringWriter sw = new StringWriter();
+		e.printStackTrace(new PrintWriter(sw));
+		showError(sw.toString());
+	}
+	
+	public static void showError(String e) {
+		MessageDialog.openError(
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+				"JapidPlayclipse",
+				e);
+	}
+	public static void showInfo(String e) {
+		MessageDialog.openInformation(
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+				"JapidPlayclipse",
+				e);
+	}
+
+	public static boolean showConfirm(String string) {
+		return MessageDialog.openConfirm(
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+				"JapidPlayclipse",
+				string);
 	}
 }

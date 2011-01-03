@@ -62,10 +62,7 @@ public final class Navigation {
 		String method = action.substring(action.lastIndexOf('.') + 1);
 		IType type = findType(fullClassName);
 		if (type == null) {
-			MessageDialog.openError(
-					window.getShell(),
-					"JapidPlayclipse",
-					"The controller " + fullClassName + " can't be found.");
+			PlayPlugin.showError("The controller " + fullClassName + " can't be found.");
 			return;
 		}
 		
@@ -108,10 +105,7 @@ public final class Navigation {
 			}
 		if (sourceRange != null) {
 			FilesAccess.goToCharacter(editorPart, sourceRange.getOffset());
-		} else if (MessageDialog.openConfirm(
-				window.getShell(),
-				"Playclipse",
-				"The method " + methodName + " doesn't exist, do you want to create it?")) {
+		} else if (PlayPlugin.showConfirm("The method " + methodName + " doesn't exist, do you want to create it?")) {
 				IMethod newMethod = type.createMethod("public static void "+methodName+"() {\n\n}\n", null, false, null);
 				FilesAccess.goToCharacter(editorPart, newMethod.getSourceRange().getOffset());
 		}
@@ -147,10 +141,7 @@ public final class Navigation {
 			return;
 		}
 		String path = file.getFullPath().toString();
-		if (MessageDialog.openConfirm(
-				window.getShell(),
-				"JapidPlayclipse",
-				"The file " + path + " can't be found, do you want to create it?")) {
+		if (PlayPlugin.showConfirm("The file " + path + " can't be found, do you want to create it?")) {
 			String[] titleArr = path.split("/");
 			String title = titleArr[titleArr.length - 1].replace(".html", "");
 			String content = CodeTemplates.view(title);

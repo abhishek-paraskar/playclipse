@@ -48,13 +48,12 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import fr.zenexity.pdt.editors.EditorHelper;
 
 public class FilesAccess {
-	// bran:  these editors seem to be from the another plugin...
+	// bran: these editors seem to be from the another plugin...
 	public enum FileType {
-		JAVA("org.eclipse.jdt.ui.CompilationUnitEditor"),
-		HTML("tk.eclipse.plugin.htmleditor.editors.HTMLEditor"),
-		CSS("tk.eclipse.plugin.htmleditor.editors.HTMLEditor"),
-		JS("tk.eclipse.plugin.htmleditor.editors.HTMLEditor");
+		JAVA("org.eclipse.jdt.ui.CompilationUnitEditor"), HTML("tk.eclipse.plugin.htmleditor.editors.HTMLEditor"), CSS(
+				"tk.eclipse.plugin.htmleditor.editors.HTMLEditor"), JS("tk.eclipse.plugin.htmleditor.editors.HTMLEditor");
 		private String editorID;
+
 		FileType(String editorID) {
 			this.editorID = editorID;
 		}
@@ -94,7 +93,7 @@ public class FilesAccess {
 	}
 
 	public static void goToLineContaining(IEditorPart editorPart, String text) {
-		EditorHelper editor = new EditorHelper((ITextEditor)editorPart);
+		EditorHelper editor = new EditorHelper((ITextEditor) editorPart);
 		String line;
 		int lineNo = -1;
 		int i = 0;
@@ -117,19 +116,15 @@ public class FilesAccess {
 
 	public static void createAndOpen(IFile file, String content, FileType type) {
 		IWorkbenchPage page = getCurrentPage();
-		InputStream source = new ByteArrayInputStream(content.getBytes());
 		try {
+			byte[] bytes = content.getBytes("UTF-8");
+			InputStream source = new ByteArrayInputStream(bytes);
 			// make sure the parents are there -- bran
-			prepareFolder((IFolder) file.getParent()); 
-			
+			prepareFolder((IFolder) file.getParent());
+
 			file.create(source, false, null);
-			org.eclipse.ui.ide.IDE.openEditor(page, file); 
-//			page.openEditor(
-//					new FileEditorInput(file),
-//					type.editorID,
-//					true,
-//					IWorkbenchPage.MATCH_INPUT);
-		} catch (CoreException e) {
+			org.eclipse.ui.ide.IDE.openEditor(page, file);
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -149,9 +144,9 @@ public class FilesAccess {
 			}
 		}
 	}
-	
+
 	private static IFile getFile(IEditorPart editorPart) {
-		return ((IFileEditorInput)editorPart.getEditorInput()).getFile();
+		return ((IFileEditorInput) editorPart.getEditorInput()).getFile();
 	}
 
 	private static IWorkbenchPage getCurrentPage() {
@@ -160,7 +155,7 @@ public class FilesAccess {
 		IWorkbenchPage page = win.getActivePage();
 		return page;
 	}
-	
+
 	// bran -- a few utility methods
 	public static IProject getEditorProject() {
 		try {
@@ -193,18 +188,19 @@ public class FilesAccess {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * @return
 	 */
 	private static ITextEditor getActiveEditor() {
-		ITextEditor editor = (ITextEditor) PlatformUI.getWorkbench()
-		 	.getActiveWorkbenchWindow().getActivePage().getActiveEditor();
+		ITextEditor editor = (ITextEditor) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
 		return editor;
 	}
 
 	/**
-	 * good for extract project from pop menu selection in project explorer for example. 
+	 * good for extract project from pop menu selection in project explorer for
+	 * example.
+	 * 
 	 * @param event
 	 * @param project
 	 * @return
@@ -213,7 +209,7 @@ public class FilesAccess {
 		IProject project = null;
 		ISelection activeMenuSelection = HandlerUtil.getActiveMenuSelection(event);
 		if (activeMenuSelection instanceof IStructuredSelection) {
-			IStructuredSelection selection = (IStructuredSelection)activeMenuSelection;
+			IStructuredSelection selection = (IStructuredSelection) activeMenuSelection;
 			for (Iterator<?> it = ((IStructuredSelection) selection).iterator(); it.hasNext();) {
 				Object element = it.next();
 				if (element instanceof IProject) {
@@ -221,7 +217,7 @@ public class FilesAccess {
 				} else if (element instanceof IAdaptable) {
 					project = (IProject) ((IAdaptable) element).getAdapter(IProject.class);
 				}
-			}		
+			}
 		}
 		return project;
 	}

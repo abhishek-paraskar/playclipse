@@ -40,8 +40,8 @@ public class AddNatureHandler extends AbstractHandler {
 
 			// Add the nature
 			String[] newNatures = new String[natures.length + 1];
-			System.arraycopy(natures, 0, newNatures, 0, natures.length);
-			newNatures[natures.length] = PlayNature.NATURE_ID;
+			System.arraycopy(natures, 0, newNatures, 1, natures.length);
+			newNatures[0] = PlayNature.NATURE_ID;
 			description.setNatureIds(newNatures);
 			project.setDescription(description, null);
 		} catch (CoreException e) {

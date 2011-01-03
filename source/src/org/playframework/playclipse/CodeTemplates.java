@@ -56,11 +56,16 @@ public final class CodeTemplates {
 
 	public static String japidView(String title) {
 		StringBuilder builder = new StringBuilder();
-		builder.append("`extends \"main.html\"\n");
+		builder.append("`extends \"SampleLayout.html\"\n");
+		builder.append("`args String s, int i \n");
+		builder.append("\n");
 		builder.append("#{set title:\"");
 		builder.append(title);
 		builder.append("\" /}\n\n");
-		builder.append("Here goes your Japid template content.");
+		builder.append("hello ${s}, ${i}.\n");
+		builder.append("Here goes your Japid template content.\n");
+		builder.append("call a tag: \n");
+		builder.append("#{SampleTag \"world\" /}\n");
 		return builder.toString();
 	}
 	

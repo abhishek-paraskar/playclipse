@@ -15,6 +15,7 @@ To install, put the jar file in ECLIPSE_HOME/dropins.
 2011/1/1:
 		1. added a few commands to the package explorer context menu.
 		2. added context menu to go to action from a view editor.Works with Play html editor and WST html editor.
+		3. added Japid template transformation to the build process to automate the template conversion from the html files to Java code.
 
 
 
