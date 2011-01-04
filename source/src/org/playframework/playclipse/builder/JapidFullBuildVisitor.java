@@ -4,13 +4,12 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 
 import bran.japidplugin.TemplateTransformer;
-
 import cn.bran.japid.classmeta.AbstractTemplateClassMetaData;
 import cn.bran.play.JapidPlayAdapter;
 import cn.bran.play.JapidPlugin;

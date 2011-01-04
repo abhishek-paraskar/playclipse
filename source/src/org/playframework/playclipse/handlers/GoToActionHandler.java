@@ -50,7 +50,7 @@ public class GoToActionHandler extends AbstractHandler {
 		Pattern pt = Pattern.compile("@\\{([^}]+)\\}");
 		Matcher m = pt.matcher(line);
 		if (m.find()) {
-			action = m.group().replace("@{", "").replace("}", "").replace("(.*)", "");
+			action = m.group().replace("@{", "").replace("}", "").replaceAll("\\(.*\\)", "");
 			if (action.contains("(")) {
 				action = action.substring(0, action.indexOf("(")).trim();
 			}

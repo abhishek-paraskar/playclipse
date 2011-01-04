@@ -1,6 +1,7 @@
 package org.playframework.playclipse.editors;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.jface.text.hyperlink.IHyperlink;
 import org.eclipse.ui.IFileEditorInput;
 import org.playframework.playclipse.Navigation;
@@ -24,8 +25,19 @@ public abstract class PlayEditor extends Editor {
 
 	@Override
 	public void openLink(IHyperlink link) {
-		String linkText = link.getHyperlinkText();
-		if (link.getTypeLabel().equals(ACTION)) {
+		boolean isJapidView  =false;
+		String filepath = getRelativePath().toString();
+		if(filepath.startsWith("app/japidviews")) {
+			isJapidView = true;
+		}
+		else {
+			isJapidView = false;
+		}
+		
+		String hyperlinkText = link.getHyperlinkText();
+		String linkText = hyperlinkText;
+		String typeLabel = link.getTypeLabel();
+		if (typeLabel.equals(ACTION)) {
 			if (linkText.startsWith("'") && linkText.endsWith("'")) {
 				// Static file, e.g. @{'/public/images/favicon.png'}
 				String path = linkText.substring(1, linkText.length() - 1);
@@ -42,15 +54,70 @@ public abstract class PlayEditor extends Editor {
 			getNav().goToAction(nakedAction);
 			return;
 		}
-		if (link.getTypeLabel().equals(TAG)) {
-			getNav().goToView("tags/" + link.getHyperlinkText().replace('.', '/') + ".html");
+		String hyper = hyperlinkText.replace('.', '/');
+		if (typeLabel.equals(TAG)) {
+			String tagName = hyper + ".html";
+			if (isJapidView) {
+				if (tagName.contains("/")){
+					// should use absolute
+					if (tagName.startsWith("japidviews")) {
+						getNav().goToViewAbs("app/" + tagName);
+					}
+					else {
+						getNav().goToViewAbs("app/japidviews/" + tagName);
+					}
+				}
+				else {
+					// simple tag name. test same package and the in the _tags package
+					IFolder tagFolder = (IFolder)((IFileEditorInput)getEditorInput()).getFile().getParent();
+					IFile tagFile = tagFolder.getFile(tagName);
+					if (tagFile.exists()) {
+						getNav().goToViewAbs(tagFile.getProjectRelativePath().toString());
+					}
+					else {
+						getNav().goToViewAbs("app/japidviews/_tags/" + tagName);
+					}
+				}
+			}
+			else {
+				getNav().goToView("tags/" + tagName);
+			}
 			return;
 		}
-		if (link.getTypeLabel().equals(EXTENDS) || link.getTypeLabel().equals("include")) {
-			String path = link.getHyperlinkText();
-			getNav().goToView(path);
+		if (typeLabel.equals(EXTENDS) || typeLabel.equals("include")) {
+			String layoutName = hyper;
+			if (!hyper.endsWith("/html"))
+				layoutName = hyper + ".html";
+			else 
+				layoutName = hyper.substring(0, hyper.lastIndexOf("/html")) + ".html";
+				
+			if (isJapidView) {
+				if (layoutName.contains("/")){
+					// should use absolute
+					if (layoutName.startsWith("japidviews")) {
+						getNav().goToViewAbs("app/" + layoutName);
+					}
+					else {
+						getNav().goToViewAbs("app/japidviews/" + layoutName);
+					}
+				}
+				else {
+					// simple layout name. test same package and the in the _layouts package
+					IFolder srcFolder = (IFolder)((IFileEditorInput)getEditorInput()).getFile().getParent();
+					IFile layoutFile = srcFolder.getFile(layoutName);
+					if (layoutFile.exists()) {
+						getNav().goToViewAbs(layoutFile.getProjectRelativePath().toString());
+					}
+					else {
+						getNav().goToViewAbs("app/japidviews/_layouts/" + layoutName);
+					}
+				}
+			}
+			else {
+				getNav().goToView("layouts/" + layoutName);
+			}
 		}
-		if (link.getTypeLabel().equals(ACTION_IN_TAG)) {
+		if (typeLabel.equals(ACTION_IN_TAG)) {
 			System.out.println(linkText);
 			String nakedAction = linkText.replace("@", "").replaceFirst("\\(.*\\)", "");
 			getNav().goToAction(nakedAction);

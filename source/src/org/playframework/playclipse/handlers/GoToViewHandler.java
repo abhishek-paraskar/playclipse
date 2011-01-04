@@ -27,6 +27,8 @@ import java.util.regex.Pattern;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
@@ -38,9 +40,12 @@ import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
+import org.playframework.playclipse.FilesAccess;
 import org.playframework.playclipse.Navigation;
+import org.playframework.playclipse.PlayPlugin;
 
 import fr.zenexity.pdt.editors.EditorHelper;
 
@@ -64,12 +69,27 @@ public class GoToViewHandler extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		window = HandlerUtil.getActiveWorkbenchWindowChecked(event);
+		EditorHelper editor = EditorHelper.getCurrent(event);
 
-		boolean useJapid = false;
+		if(editor != null) {
+			String relativePath = ((IFileEditorInput) editor.textEditor.getEditorInput()).getFile().getProjectRelativePath().toString();
+			if (relativePath.startsWith("app/japidviews/") && relativePath.endsWith(".java")) {
+				// bran: if we are in the japid derived Java template code, let's switch back to the html view
+				String jFile = relativePath.substring(0, relativePath.lastIndexOf("java")) + "html";
+				IFile f = editor.getProject().getFile(jFile);
+				try {
+					FilesAccess.openFile(f);
+				} catch (CoreException e) {
+					PlayPlugin.showError(e);
+				}
+				return null;		
+			}
+		}
+		
+		boolean useJapid = true;
 
 		String line;
 		String viewName = null;
-		EditorHelper editor = EditorHelper.getCurrent(event);
 		String title = editor.getTitle();
 		String controllerName = title.replace(".java", "");
 
@@ -113,10 +133,11 @@ public class GoToViewHandler extends AbstractHandler {
 		line = editor.getLine(lineNo);
 		if (line.contains("render")) {
 			if (!line.contains("renderJapid")) {
-				// render classic groovy
 				Pattern pt = Pattern.compile("\"(.*)\"");
 				Matcher m = pt.matcher(line);
 				if (m.find()) {
+					// render classic groovy
+					useJapid = false;
 					// There is a custom view, by renderTemplate()
 					viewName = "app/views/" + m.group().replace("\"", "");
 				}
@@ -179,7 +200,7 @@ public class GoToViewHandler extends AbstractHandler {
 			}
 		}
 		catch (JavaModelException e) {
-			e.printStackTrace();
+			PlayPlugin.showError(e);
 		}
 		return null;
 	}

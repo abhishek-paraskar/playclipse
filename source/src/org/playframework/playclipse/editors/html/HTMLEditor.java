@@ -165,14 +165,16 @@ public class HTMLEditor extends PlayEditor {
 	// Hyperlink
 
 	Pattern extend_s = Pattern.compile("#\\{extends\\s+'([^']+)'");
+	Pattern extends_japid = Pattern.compile("`\\s*extends\\s+'([^']+)'");
+	Pattern extends_japid2 = Pattern.compile("`\\s*extends\\s+\"([^\"]+)\"");
 	Pattern include = Pattern.compile("#\\{include\\s+'([^']+)'");
 	Pattern action = Pattern.compile("@\\{([^}]+)\\}");
 	Pattern action_in_tag = Pattern.compile("#\\{.+(@.+[)])");
-	Pattern tag = Pattern.compile("#\\{([-a-zA-Z0-9.]+) ");
+	Pattern tag = Pattern.compile("#\\{([-a-zA-Z0-9\\./_]+) ");
 
 	@Override
 	public IHyperlink detectHyperlink(ITextViewer textViewer, IRegion region) {
-		BestMatch match = findBestMatch(region.getOffset(), include, extend_s, action, action_in_tag, tag);
+		BestMatch match = findBestMatch(region.getOffset(), include, extend_s, extends_japid, extends_japid2, action, action_in_tag, tag);
 		if(match != null) {
 			if(match.is(action)) {
 				return match.hyperlink(ACTION2, 0, 0);
@@ -181,6 +183,12 @@ public class HTMLEditor extends PlayEditor {
 				return match.hyperlink(TAG2, 2, -1);
 			}
 			if(match.is(extend_s)) {
+				return match.hyperlink(EXTENDS, match.matcher.start(1) - match.matcher.start(), -1);
+			}
+			if(match.is(extends_japid)) {
+				return match.hyperlink(EXTENDS, match.matcher.start(1) - match.matcher.start(), -1);
+			}
+			if(match.is(extends_japid2)) {
 				return match.hyperlink(EXTENDS, match.matcher.start(1) - match.matcher.start(), -1);
 			}
 			if(match.is(include)) {

@@ -85,6 +85,11 @@
             id="Playclipse.browseToView"
             name="Browse to view">
       </command>
+      <command
+            defaultHandler="org.playframework.playclipse.handlers.GoToDerivedJavaHandler"
+            id="Playclipse.gotoDerivedView"
+            name="Go to derived Java file">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
@@ -596,6 +601,11 @@
                         label="Go to action"
                         style="push">
                   </command>
+                  <command
+                        commandId="Playclipse.gotoDerivedView"
+                        label="Go to generated Java file"
+                        style="push">
+                  </command>
                </menu>
             </menuContribution>
             <menuContribution
@@ -605,6 +615,11 @@
                   <command
                         commandId="org.playframework.playclipse.commands.goToActionCommand"
                         label="Go to action"
+                        style="push">
+                  </command>
+                  <command
+                        commandId="Playclipse.gotoDerivedView"
+                        label="Go to generated Java file"
                         style="push">
                   </command>
                </menu>

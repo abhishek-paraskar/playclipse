@@ -1,21 +1,10 @@
 package org.playframework.playclipse.builder;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.runtime.CoreException;
-
-import bran.japidplugin.TemplateTransformer;
-import cn.bran.japid.classmeta.AbstractTemplateClassMetaData;
-import cn.bran.play.JapidPlayAdapter;
-import cn.bran.play.JapidPlugin;
-import cn.bran.play.NoEnhance;
-import cn.bran.play.WebUtils;
 
 public class JapidDeltaVisitor implements IResourceDeltaVisitor {
 	static {

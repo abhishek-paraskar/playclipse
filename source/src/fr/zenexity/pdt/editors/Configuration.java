@@ -20,10 +20,12 @@ public class Configuration extends SourceViewerConfiguration {
 		this.editor = editor;
 	}
 
+	@Override
 	public String[] getConfiguredContentTypes(ISourceViewer sourceViewer) {
 		return editor.getTypes();
 	}
 
+	@Override
 	public IPresentationReconciler getPresentationReconciler(ISourceViewer sourceViewer) {
 		PresentationReconciler presentationReconciler = new PresentationReconciler();		
 		for(String type: editor.getTypes()) {
@@ -49,7 +51,8 @@ public class Configuration extends SourceViewerConfiguration {
 			public IHyperlink[] detectHyperlinks(ITextViewer textViewer, IRegion region, boolean canShowMultipleHyperlinks) {
 				IHyperlink link = editor.detectHyperlink(textViewer, region);
 				if(link == null) {
-					return new IHyperlink[0];
+					return null;
+//					return new IHyperlink[0];
 				}
 				return new IHyperlink[] {link};
 			}

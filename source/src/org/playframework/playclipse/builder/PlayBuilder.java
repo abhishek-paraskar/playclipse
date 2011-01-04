@@ -171,7 +171,9 @@ public class PlayBuilder extends IncrementalProjectBuilder implements IPropertyC
 		ensureJapidViewsDir();
 		try {
 			getProject().accept(new ResourceVisitor());
-			getProject().accept(new JapidFullBuildVisitor());
+			JapidFullBuildCollector batchCompiler = new JapidFullBuildCollector();
+			getProject().accept(batchCompiler);
+			batchCompiler.startWork(monitor);
 		} catch (CoreException e) {
 			e.printStackTrace();
 		}
@@ -200,8 +202,11 @@ public class PlayBuilder extends IncrementalProjectBuilder implements IPropertyC
 
 	@Override
 	protected void clean(IProgressMonitor monitor) throws CoreException {
-		// chance to clean all generated Japid code
-		super.clean(monitor);
+		try {
+			getProject().accept(new JapidCleanVisitor());
+		} catch (CoreException e) {
+			PlayPlugin.showError(e);
+		}
 	}
 
 	

@@ -70,6 +70,11 @@ public abstract class Editor extends TextEditor implements VerifyListener, IProp
 		return input.getFile().getFullPath();
 	}
 
+	protected IPath getRelativePath() {
+		IFileEditorInput input = (IFileEditorInput)getEditorInput();
+		return input.getFile().getProjectRelativePath();
+	}
+	
 	public IProject getProject() {
 		IFile curfile = ((IFileEditorInput)getEditorInput()).getFile();
 		IContainer container = curfile.getParent();
@@ -140,7 +145,9 @@ public abstract class Editor extends TextEditor implements VerifyListener, IProp
 		}
 		List<BestMatch> bestMatches = new ArrayList<BestMatch>();
 		for(Matcher matcher : matches) {
-			if(matcher.start()+offset < position && matcher.end()+offset > position) {
+			int start = matcher.start();
+			int end3 = matcher.end();
+			if(start+offset <= position && end3+offset >= position) {
 				bestMatches.add(new BestMatch(matcher, offset));
 			}
 		}
@@ -161,7 +168,7 @@ public abstract class Editor extends TextEditor implements VerifyListener, IProp
 		if (offset > text.length()) {
 			throw new IndexOutOfBoundsException();
 		}
-		int start = offset, end = offset;
+		int start = offset - 1, end = offset;
 		while(start > 0 && text.charAt(start) != '\n') {
 			start--;
 		}

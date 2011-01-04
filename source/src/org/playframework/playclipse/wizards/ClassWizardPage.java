@@ -30,7 +30,7 @@ public abstract class ClassWizardPage extends PlayWizardPage {
 
 	private Button packageBrowse;
 
-	protected boolean useJapid;
+	protected boolean useJapid = true;
 	
 	protected Text packageText;
 
@@ -107,6 +107,7 @@ public abstract class ClassWizardPage extends PlayWizardPage {
 		
 		final Button useJapidButton = new Button(container, SWT.CHECK);
 		useJapidButton.setText("Use Japid");
+		useJapidButton.setSelection(true);
 		useJapidButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {

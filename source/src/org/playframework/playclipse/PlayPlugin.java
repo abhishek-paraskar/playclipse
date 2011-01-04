@@ -21,8 +21,17 @@ package org.playframework.playclipse;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.IViewSite;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.IWorkbenchPartSite;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
@@ -54,21 +63,21 @@ public class PlayPlugin extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
-/*
-		ICommandService commandService = (ICommandService)plugin.getWorkbench().getService(ICommandService.class);
-		commandService.addExecutionListener(new IExecutionListener() {
-			public void notHandled(final String commandId, final NotHandledException exception) {}
-			public void postExecuteFailure(final String commandId, final ExecutionException exception) {}
-			public void postExecuteSuccess(final String commandId, final Object returnValue) {}
-			public void preExecute( final String commandId, final ExecutionEvent event ) {
-				if (commandId.equals("org.eclipse.ui.file.save")) {
-					IEditorPart editor = HandlerUtil.getActiveEditor(event);
-					if (editor instanceof Editor) {
-						((Editor)editor).updateMarkers();
-					}
-				}
-			}
-		});*/
+		/*
+		 * ICommandService commandService =
+		 * (ICommandService)plugin.getWorkbench(
+		 * ).getService(ICommandService.class);
+		 * commandService.addExecutionListener(new IExecutionListener() { public
+		 * void notHandled(final String commandId, final NotHandledException
+		 * exception) {} public void postExecuteFailure(final String commandId,
+		 * final ExecutionException exception) {} public void
+		 * postExecuteSuccess(final String commandId, final Object returnValue)
+		 * {} public void preExecute( final String commandId, final
+		 * ExecutionEvent event ) { if
+		 * (commandId.equals("org.eclipse.ui.file.save")) { IEditorPart editor =
+		 * HandlerUtil.getActiveEditor(event); if (editor instanceof Editor) {
+		 * ((Editor)editor).updateMarkers(); } } } });
+		 */
 	}
 
 	@Override
@@ -79,7 +88,7 @@ public class PlayPlugin extends AbstractUIPlugin {
 
 	/**
 	 * Returns the shared instance
-	 *
+	 * 
 	 * @return the shared instance
 	 */
 	public static PlayPlugin getDefault() {
@@ -87,39 +96,65 @@ public class PlayPlugin extends AbstractUIPlugin {
 	}
 
 	/**
-	 * Returns an image descriptor for the image file at the given
-	 * plug-in relative path
-	 *
-	 * @param path the path
+	 * Returns an image descriptor for the image file at the given plug-in
+	 * relative path
+	 * 
+	 * @param path
+	 *            the path
 	 * @return the image descriptor
 	 */
 	public static ImageDescriptor getImageDescriptor(String path) {
 		return imageDescriptorFromPlugin(PLUGIN_ID, path);
 	}
-	
+
 	public static void showError(Exception e) {
 		StringWriter sw = new StringWriter();
 		e.printStackTrace(new PrintWriter(sw));
 		showError(sw.toString());
 	}
-	
+
 	public static void showError(String e) {
-		MessageDialog.openError(
-				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-				"JapidPlayclipse",
-				e);
+		MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "JapidPlayclipse", e);
 	}
+
 	public static void showInfo(String e) {
-		MessageDialog.openInformation(
-				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-				"JapidPlayclipse",
-				e);
+		MessageDialog.openInformation(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "JapidPlayclipse", e);
 	}
 
 	public static boolean showConfirm(String string) {
-		return MessageDialog.openConfirm(
-				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-				"JapidPlayclipse",
-				string);
+		return MessageDialog.openConfirm(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "JapidPlayclipse", string);
 	}
+
+//	public static void status(final String message) {
+//		final Display display = Display.getDefault();
+//
+//		new Thread() {
+//			@Override
+//			public void run() {
+//				display.syncExec(new Runnable() {
+//					@Override
+//					public void run() {
+//						IWorkbench wb = PlatformUI.getWorkbench();
+//						IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
+//						IWorkbenchPage page = win.getActivePage();
+//						IWorkbenchPart part = page.getActivePart();
+//						IWorkbenchPartSite site = part.getSite();
+	// this casting is not working 
+//						IViewSite vSite = (IViewSite) site;
+//						IActionBars actionBars = vSite.getActionBars();
+//
+//						if (actionBars == null)
+//							return;
+//
+//						IStatusLineManager statusLineManager = actionBars.getStatusLineManager();
+//
+//						if (statusLineManager == null)
+//							return;
+//
+//						statusLineManager.setMessage(message);
+//					}
+//				});
+//			}
+//		}.start();
+//	}
 }
