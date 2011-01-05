@@ -693,7 +693,7 @@
  </extension>
  <extension
        id="playNature"
-       name="Play Project Nature"
+       name="Japid Play Project Nature"
        point="org.eclipse.core.resources.natures">
     <runtime>
        <run
@@ -760,5 +760,4 @@
        </variable>
     </sourceProvider>
  </extension>
-
 </plugin>

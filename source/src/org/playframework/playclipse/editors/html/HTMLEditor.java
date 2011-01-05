@@ -168,19 +168,25 @@ public class HTMLEditor extends PlayEditor {
 	Pattern extends_japid = Pattern.compile("`\\s*extends\\s+'([^']+)'");
 	Pattern extends_japid2 = Pattern.compile("`\\s*extends\\s+\"([^\"]+)\"");
 	Pattern include = Pattern.compile("#\\{include\\s+'([^']+)'");
+	Pattern action_invoke = Pattern.compile("#\\{\\s*invoke\\s+([-a-zA-Z0-9\\._]+)");
 	Pattern action = Pattern.compile("@\\{([^}]+)\\}");
 	Pattern action_in_tag = Pattern.compile("#\\{.+(@.+[)])");
-	Pattern tag = Pattern.compile("#\\{([-a-zA-Z0-9\\./_]+) ");
+	Pattern tag = Pattern.compile("#\\{([-a-zA-Z0-9\\./_]+)");
 
 	@Override
 	public IHyperlink detectHyperlink(ITextViewer textViewer, IRegion region) {
-		BestMatch match = findBestMatch(region.getOffset(), include, extend_s, extends_japid, extends_japid2, action, action_in_tag, tag);
+		BestMatch match = findBestMatch(region.getOffset(), include, action_invoke, extend_s, extends_japid, extends_japid2, action, action_in_tag, tag);
 		if(match != null) {
-			if(match.is(action)) {
+//			System.out.println(match.text());
+			if(match.is(action) ) {
 				return match.hyperlink(ACTION2, 0, 0);
 			}
+			if(match.is(action_invoke) ) {
+				return match.hyperlink(ACTION2, match.matcher.start(1) - match.matcher.start(), 0);
+			}
 			if(match.is(tag)) {
-				return match.hyperlink(TAG2, 2, -1);
+				if (!match.text().equals("invoke") && !match.text().equals("Each"))
+					return match.hyperlink(TAG2, 2, 0);
 			}
 			if(match.is(extend_s)) {
 				return match.hyperlink(EXTENDS, match.matcher.start(1) - match.matcher.start(), -1);

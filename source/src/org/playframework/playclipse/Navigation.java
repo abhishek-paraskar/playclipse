@@ -57,7 +57,8 @@ public final class Navigation {
 	 * @param action the fully qualified action, such as namespace.className.method
 	 */
 	public void goToAction(String action) {
-		String fullClassName = "controllers." + action.replaceFirst(".[^.]+$", "");
+		action = (action.startsWith("controllers.") ? "": "controllers.") + action; 
+		String fullClassName = action.replaceFirst(".[^.]+$", "");
 		System.out.println("goToAction for class: " + fullClassName);
 		String method = action.substring(action.lastIndexOf('.') + 1);
 		IType type = findType(fullClassName);

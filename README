@@ -19,5 +19,6 @@ To install, put the jar file in ECLIPSE_HOME/dropins.
 		4. added comand in the editor context manu to switch between japid html and japid java code.
 		5. enhanced the tag, action and layout navigation via ctrl-click in views.
 
-
+2011/1/5, version 0.8.2
+		1. support ctrl-click on #{invoke package.controller.action /} in views.
 

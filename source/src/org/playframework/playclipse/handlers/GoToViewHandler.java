@@ -222,6 +222,8 @@ public class GoToViewHandler extends AbstractHandler {
 	 */
 	public static List<IJavaElement> getJavaElementsPath(IJavaElement elem) {
 		List<IJavaElement> path = new ArrayList<IJavaElement>();
+		if (elem == null)
+			return path;
 		path.add(elem);
 		elem = elem.getParent();
 		while (elem != null) {

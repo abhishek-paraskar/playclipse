@@ -1,10 +1,19 @@
 package org.playframework.playclipse.editors;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.hyperlink.IHyperlink;
 import org.eclipse.ui.IFileEditorInput;
 import org.playframework.playclipse.Navigation;
+import org.playframework.playclipse.PlayPlugin;
 
 import fr.zenexity.pdt.editors.Editor;
 
@@ -51,7 +60,55 @@ public abstract class PlayEditor extends Editor {
 				String controller = curfile.getParent().getName();
 				nakedAction = controller + "." + nakedAction;
 			}
-			getNav().goToAction(nakedAction);
+			
+			if (nakedAction.indexOf('.') == nakedAction.lastIndexOf('.')) {
+				// controller name without package. I need to figure out the full qualified name
+				String className = nakedAction.substring(0, nakedAction.indexOf('.'));
+				// how about controllers.xxx
+				if(getProject().getFile("app/controllers/" + className + ".java").exists()) {
+					getNav().goToAction(nakedAction);
+				}
+				else {
+					// I need to find if there is controller imports
+					IFile curfile = ((IFileEditorInput)getEditorInput()).getFile();
+					try {
+						InputStream contents = curfile.getContents();
+						BufferedReader reader = new BufferedReader(new InputStreamReader(contents));
+						String line = "";//reader.readLine();
+						Pattern p = Pattern.compile("\\s*`\\s*import\\s*(controllers\\.[^;]*)");
+						while ((line =reader.readLine()) != null) {
+							Matcher matcher = p.matcher(line);
+							if (matcher.find()) {
+								String pack = matcher.group(1).trim();
+								String fqname = null;
+								if (pack.endsWith(".*")) {
+									fqname = pack.substring(0, pack.lastIndexOf("*")) + className;
+									String src = "app/" + fqname.replace('.', '/') + ".java";
+									if (getProject().getFile(src).exists()) {
+										fqname += nakedAction.substring(nakedAction.indexOf('.'));
+									}
+									else {
+										fqname  = null;
+									}
+								}
+								else if(pack.endsWith("." + className)) {
+									fqname =  pack + nakedAction.substring(nakedAction.indexOf('.'));
+								}
+								
+								if (fqname  != null) {
+									getNav().goToAction(fqname);
+									return;
+								}
+							}
+						}
+					} catch (Exception e) {
+						PlayPlugin.showError(e);
+					}
+				}
+			}
+			else {
+				getNav().goToAction(nakedAction);
+			}
 			return;
 		}
 		String hyper = hyperlinkText.replace('.', '/');
