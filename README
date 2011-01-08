@@ -9,7 +9,7 @@ Features
 
 - The plugin as of now offers the same level of features that are in the original plugin for the  groovy-based templates to the Japid template engine.
   - Commands to navigate between actions and views.
-  - An enhanced Play HTML editor that recognizes some Japid syntax. 
+  - An enhanced Play HTML editor that recognizes some Japid syntax, notably the back single quotation mark syntax - the flagship Japid syntax.  
   - Ctrl-click navigation in html views to actions, layout templates and tags. 
 
 - It also integrate the Japid template trasforming process to the standard Eclipse project  incremental and full building processes, thus eliminate any manual process in applying Japid  templates while deliverying the best possible performance.   
@@ -19,6 +19,8 @@ Features
 Intallation:
 
 - Just put the jar file in the dropins directory of the Eclipse installation and restart the  IDE. 
+- Starting from version 0.6.0, the Japid module (http://www.playframework.org/modules/japid) bundles a distribution of this plugin in the eclipse plugin sub-directory in the module downloads. Please use the jar file in the bundle for best version match.
+
 
 Note:
 
@@ -28,7 +30,7 @@ Note:
 Usage:
 
 - Enable the Play nature to your Play/Japid application in the Eclipse, or the Japid  transformation will not be integrated with the project building process, neither the popup menu  will display the proper menu items. 
-  
+- The Japid module bundles a distribution  
 
 History:
 
