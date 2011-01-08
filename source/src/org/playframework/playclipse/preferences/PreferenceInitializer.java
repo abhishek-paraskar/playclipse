@@ -19,6 +19,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 	 * 
 	 * @see org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer#initializeDefaultPreferences()
 	 */
+	@Override
 	public void initializeDefaultPreferences() {
 		IPreferenceStore store = PlayPlugin.getDefault().getPreferenceStore();
 
@@ -48,6 +49,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		PreferenceConverter.setDefault(store, HTMLEditor.SKIPPED_COLOR, new RGB(90, 90, 90));
 		PreferenceConverter.setDefault(store, HTMLEditor.TAG_COLOR, new RGB(129, 0, 153));
 		PreferenceConverter.setDefault(store, HTMLEditor.STRING_COLOR, new RGB(5, 152, 220));
+		PreferenceConverter.setDefault(store, HTMLEditor.JAVA_LINE_COLOR, new RGB(33, 33, 220));
 		store.setDefault(HTMLEditor.MISSING_ACTION, "error");
 		store.setDefault(HTMLEditor.SOFT_TABS, false);
 		store.setDefault(HTMLEditor.SOFT_TABS_WIDTH, 4);

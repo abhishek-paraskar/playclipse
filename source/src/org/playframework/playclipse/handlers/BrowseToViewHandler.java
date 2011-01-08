@@ -21,39 +21,28 @@ package org.playframework.playclipse.handlers;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaModel;
-import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IPackageDeclaration;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
-import org.playframework.playclipse.FilesAccess;
 import org.playframework.playclipse.Navigation;
 
-import fr.zenexity.pdt.editors.EditorHelper;
-
 /**
- * Go to the view (template) corresponding to the current action
+ * Go to the view (template) corresponding to the current action selected in the explorer tree for example
  */
 public class BrowseToViewHandler extends AbstractHandler {
 	static Pattern stringPattern = Pattern.compile("\"(.*)\"");
@@ -144,33 +133,6 @@ public class BrowseToViewHandler extends AbstractHandler {
 		return null;
 	}
 
-	/**
-	 * @param selection
-	 * @param unit
-	 */
-	private String getEnclosingActionName(ITextSelection selection, ICompilationUnit unit) {
-		IJavaElement selected;
-		try {
-			selected = unit.getElementAt(selection.getOffset());
-			List<IJavaElement> path = getJavaElementsPath(selected);
-			if (path.size() >= 7) {
-				IJavaElement el = path.get(6);
-				if (el.getElementType() == IJavaElement.METHOD) {
-					IMethod sm = (IMethod) el;
-					int flags = sm.getFlags();
-					String actionMethodName = el.getElementName();
-					if (Flags.isPublic(flags) && Flags.isStatic(flags)) {
-						return actionMethodName;
-					} else {
-						info("The enclosig method " + actionMethodName + " is not public static, thus not a valid action method.");
-					}
-				}
-			}
-		} catch (JavaModelException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
 
 	static void printAstPath(IJavaElement elem) {
 		System.out.println(elem.getClass() + ":" + elem.getElementType() + ":" + elem.getElementName());

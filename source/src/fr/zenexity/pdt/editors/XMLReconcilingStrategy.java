@@ -2,6 +2,7 @@
 package fr.zenexity.pdt.editors;
 
 import java.util.ArrayList;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -104,6 +105,7 @@ public class XMLReconcilingStrategy implements IReconcilingStrategy, IReconcilin
 		// Collections.sort(fPositions, new RangeTokenComparator());
 
 		Display.getDefault().asyncExec(new Runnable() {
+			@Override
 			public void run() {
 				editor.updateFoldingStructure(fPositions);
 			}

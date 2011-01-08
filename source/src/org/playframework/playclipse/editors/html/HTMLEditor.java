@@ -45,11 +45,15 @@ public class HTMLEditor extends PlayEditor {
 	public static final String SKIPPED_COLOR = "html_skipped_color";
 	public static final String KEYWORD_COLOR = "html_keyword_color";
 	public static final String STRING_COLOR = "html_string_color";
+	public static final String JAVA_LINE_COLOR = "java_line_color";
 
 	public static final String SOFT_TABS = "html_soft_tabs";
 	public static final String SOFT_TABS_WIDTH = "html_soft_tabs_width";
 
 	public static final String MISSING_ACTION = "html_missing_action";
+
+	// japid
+	public static final String JAVA_LINE = "japid_java_line";
 
 	private ProjectionSupport projectionSupport;
 
@@ -63,7 +67,7 @@ public class HTMLEditor extends PlayEditor {
 
 	@Override
 	public String[] getTypes() {
-		return new String[] {DEFAULT, DOCTYPE, HTML, STRING, TAG2, EXPRESSION, ACTION2, SKIPPED, KEYWORD};
+		return new String[] {DEFAULT, DOCTYPE, HTML, STRING, TAG2, EXPRESSION, ACTION2, SKIPPED, KEYWORD, JAVA_LINE};
 	}
 
 	@Override
@@ -91,6 +95,9 @@ public class HTMLEditor extends PlayEditor {
 		}
 		if(type.equals(KEYWORD)) {
 			return KEYWORD_COLOR;
+		}
+		if(type.equals(JAVA_LINE)) {
+			return JAVA_LINE_COLOR;
 		}
 		return DEFAULT_COLOR;
 	}
@@ -165,23 +172,28 @@ public class HTMLEditor extends PlayEditor {
 	// Hyperlink
 
 	Pattern extend_s = Pattern.compile("#\\{extends\\s+'([^']+)'");
-	Pattern extends_japid = Pattern.compile("`\\s*extends\\s+'([^']+)'");
-	Pattern extends_japid2 = Pattern.compile("`\\s*extends\\s+\"([^\"]+)\"");
+	Pattern extends_japid = Pattern.compile("[^`]?`\\s*extends\\s+'([^']+)'");
+	Pattern extends_japid2 = Pattern.compile("[^`]?`\\s*extends\\s+\"([^\"]+)\"");
+	Pattern extends_japid3 = Pattern.compile("[^`]?`\\s*extends\\s+([^\"\']+)");
 	Pattern include = Pattern.compile("#\\{include\\s+'([^']+)'");
 	Pattern action_invoke = Pattern.compile("#\\{\\s*invoke\\s+([-a-zA-Z0-9\\._]+)");
+	Pattern action_invoke2= Pattern.compile("[^`]?`\\s*invoke\\s+([-a-zA-Z0-9\\\\._]+)");
 	Pattern action = Pattern.compile("@\\{([^}]+)\\}");
 	Pattern action_in_tag = Pattern.compile("#\\{.+(@.+[)])");
 	Pattern tag = Pattern.compile("#\\{([-a-zA-Z0-9\\./_]+)");
 
 	@Override
 	public IHyperlink detectHyperlink(ITextViewer textViewer, IRegion region) {
-		BestMatch match = findBestMatch(region.getOffset(), include, action_invoke, extend_s, extends_japid, extends_japid2, action, action_in_tag, tag);
+		BestMatch match = findBestMatch(region.getOffset(), include, action_invoke, extend_s, extends_japid, extends_japid2, extends_japid3, action, action_in_tag, tag, action_invoke2);
 		if(match != null) {
 //			System.out.println(match.text());
 			if(match.is(action) ) {
 				return match.hyperlink(ACTION2, 0, 0);
 			}
 			if(match.is(action_invoke) ) {
+				return match.hyperlink(ACTION2, match.matcher.start(1) - match.matcher.start(), 0);
+			}
+			if(match.is(action_invoke2) ) {
 				return match.hyperlink(ACTION2, match.matcher.start(1) - match.matcher.start(), 0);
 			}
 			if(match.is(tag)) {
@@ -196,6 +208,9 @@ public class HTMLEditor extends PlayEditor {
 			}
 			if(match.is(extends_japid2)) {
 				return match.hyperlink(EXTENDS, match.matcher.start(1) - match.matcher.start(), -1);
+			}
+			if(match.is(extends_japid3)) {
+				return match.hyperlink(EXTENDS, match.matcher.start(1) - match.matcher.start(), 0);
 			}
 			if(match.is(include)) {
 				return match.hyperlink(INCLUDE2, match.matcher.start(1) - match.matcher.start(), -1);
@@ -245,7 +260,21 @@ public class HTMLEditor extends PlayEditor {
 				oldState = state;
 				return found(ACTION2, 0);
 			}
+			if(isNext("``")) {
+				return found(oldState, 2);
+			}
+			if(isNext("`") && !isNext("``")) {
+				oldState = state;
+				return found(JAVA_LINE, 0);
+			}
 		}
+
+		if(state == JAVA_LINE) {
+			if(isNext("\n")) {
+				return found(oldState, 1);
+			}
+		}
+		
 		if(state == TAG2 || state == EXPRESSION || state == ACTION2) {
 			if(isNext("}")) {
 				return found(oldState, 1);
