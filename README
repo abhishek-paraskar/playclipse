@@ -30,7 +30,7 @@ Note:
 Usage:
 
 - Enable the Play nature to your Play/Japid application in the Eclipse, or the Japid  transformation will not be integrated with the project building process, neither the popup menu  will display the proper menu items. 
-- The Japid module bundles a distribution  
+- The plugin has been tested with Eclipse Helios (3.6). 
 
 History:
 
