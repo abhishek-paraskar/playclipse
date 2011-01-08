@@ -24,13 +24,13 @@ Intallation:
 
 Note:
 
-- The plugin bundles the jar files of the Japid module in a single jar. Try to use the plugin  from each Japid distribution to keep the Japid engine in sync with the plugin. 
+- The plugin has been tested with Eclipse Helios (3.6).
    
 
 Usage:
 
-- Enable the Play nature to your Play/Japid application in the Eclipse, or the Japid  transformation will not be integrated with the project building process, neither the popup menu  will display the proper menu items. 
-- The plugin has been tested with Eclipse Helios (3.6). 
+- Right click on your Play project and enable the Play nature to your Play/Japid application in the Eclipse, or the Japid  transformation will not be integrated with the project building process, neither the popup menu  will display the proper menu items. 
+ 
 
 History:
 
