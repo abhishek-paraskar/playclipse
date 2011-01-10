@@ -12,8 +12,10 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.hyperlink.IHyperlink;
 import org.eclipse.ui.IFileEditorInput;
+import org.playframework.playclipse.FilesAccess;
 import org.playframework.playclipse.Navigation;
 import org.playframework.playclipse.PlayPlugin;
+import org.playframework.playclipse.editors.html.HTMLEditor;
 
 import fr.zenexity.pdt.editors.Editor;
 
@@ -34,18 +36,45 @@ public abstract class PlayEditor extends Editor {
 
 	@Override
 	public void openLink(IHyperlink link) {
-		boolean isJapidView  =false;
+		boolean isJapidView = false;
 		String filepath = getRelativePath().toString();
-		if(filepath.startsWith("app/japidviews")) {
+		if (filepath.startsWith("app/japidviews")) {
 			isJapidView = true;
-		}
-		else {
+		} else {
 			isJapidView = false;
 		}
-		
+
 		String hyperlinkText = link.getHyperlinkText();
 		String linkText = hyperlinkText;
 		String typeLabel = link.getTypeLabel();
+		if (typeLabel.equals(HTMLEditor.IMPORT)) {
+			if (linkText.endsWith(".") || linkText.endsWith("*")) {
+				return;
+			}
+			String imported = linkText.replace('.', '/');
+			
+			IFile file = getProject().getFile("app/" + imported + ".java");
+			try {
+				FilesAccess.openFile(file);
+			} catch (Exception e) {
+				PlayPlugin.showError(e.getMessage());
+			}
+			return;
+		}
+		
+		if (typeLabel.equals(HTMLEditor.IMPORT_STATIC)) {
+			String imported = linkText.replace('.', '/');
+			if (imported.endsWith("/"))
+				imported = imported.substring(0, imported.length() - 1);
+			IFile file = getProject().getFile("app/" + imported + ".java");
+			try {
+				FilesAccess.openFile(file);
+			} catch (CoreException e) {
+				PlayPlugin.showError(e.getMessage());
+			}
+			return;
+		}
+		
 		if (typeLabel.equals(ACTION)) {
 			if (linkText.startsWith("'") && linkText.endsWith("'")) {
 				// Static file, e.g. @{'/public/images/favicon.png'}
@@ -56,27 +85,27 @@ public abstract class PlayEditor extends Editor {
 			String nakedAction = linkText.replaceFirst("\\(.*\\)", "");
 			if (nakedAction.indexOf('.') == -1) {
 				// Relative reference, e.g. just "index"
-				IFile curfile = ((IFileEditorInput)getEditorInput()).getFile();
+				IFile curfile = ((IFileEditorInput) getEditorInput()).getFile();
 				String controller = curfile.getParent().getName();
 				nakedAction = controller + "." + nakedAction;
 			}
-			
+
 			if (nakedAction.indexOf('.') == nakedAction.lastIndexOf('.')) {
-				// controller name without package. I need to figure out the full qualified name
+				// controller name without package. I need to figure out the
+				// full qualified name
 				String className = nakedAction.substring(0, nakedAction.indexOf('.'));
 				// how about controllers.xxx
-				if(getProject().getFile("app/controllers/" + className + ".java").exists()) {
+				if (getProject().getFile("app/controllers/" + className + ".java").exists()) {
 					getNav().goToAction(nakedAction);
-				}
-				else {
+				} else {
 					// I need to find if there is controller imports
-					IFile curfile = ((IFileEditorInput)getEditorInput()).getFile();
+					IFile curfile = ((IFileEditorInput) getEditorInput()).getFile();
 					try {
 						InputStream contents = curfile.getContents();
 						BufferedReader reader = new BufferedReader(new InputStreamReader(contents));
-						String line = "";//reader.readLine();
+						String line = "";// reader.readLine();
 						Pattern p = Pattern.compile("\\s*`\\s*import\\s*(controllers\\.[^;]*)");
-						while ((line =reader.readLine()) != null) {
+						while ((line = reader.readLine()) != null) {
 							Matcher matcher = p.matcher(line);
 							if (matcher.find()) {
 								String pack = matcher.group(1).trim();
@@ -86,16 +115,14 @@ public abstract class PlayEditor extends Editor {
 									String src = "app/" + fqname.replace('.', '/') + ".java";
 									if (getProject().getFile(src).exists()) {
 										fqname += nakedAction.substring(nakedAction.indexOf('.'));
+									} else {
+										fqname = null;
 									}
-									else {
-										fqname  = null;
-									}
+								} else if (pack.endsWith("." + className)) {
+									fqname = pack + nakedAction.substring(nakedAction.indexOf('.'));
 								}
-								else if(pack.endsWith("." + className)) {
-									fqname =  pack + nakedAction.substring(nakedAction.indexOf('.'));
-								}
-								
-								if (fqname  != null) {
+
+								if (fqname != null) {
 									getNav().goToAction(fqname);
 									return;
 								}
@@ -105,38 +132,34 @@ public abstract class PlayEditor extends Editor {
 						PlayPlugin.showError(e);
 					}
 				}
-			}
-			else {
+			} else {
 				getNav().goToAction(nakedAction);
 			}
 			return;
 		}
-		String hyper = hyperlinkText.replace('.', '/');
+		String hyper = hyperlinkText.replace('.', '/').trim();
 		if (typeLabel.equals(TAG)) {
 			String tagName = hyper + ".html";
 			if (isJapidView) {
-				if (tagName.contains("/")){
+				if (tagName.contains("/")) {
 					// should use absolute
 					if (tagName.startsWith("japidviews")) {
 						getNav().goToViewAbs("app/" + tagName);
-					}
-					else {
+					} else {
 						getNav().goToViewAbs("app/japidviews/" + tagName);
 					}
-				}
-				else {
-					// simple tag name. test same package and the in the _tags package
-					IFolder tagFolder = (IFolder)((IFileEditorInput)getEditorInput()).getFile().getParent();
+				} else {
+					// simple tag name. test same package and the in the _tags
+					// package
+					IFolder tagFolder = (IFolder) ((IFileEditorInput) getEditorInput()).getFile().getParent();
 					IFile tagFile = tagFolder.getFile(tagName);
 					if (tagFile.exists()) {
 						getNav().goToViewAbs(tagFile.getProjectRelativePath().toString());
-					}
-					else {
+					} else {
 						getNav().goToViewAbs("app/japidviews/_tags/" + tagName);
 					}
 				}
-			}
-			else {
+			} else {
 				getNav().goToView("tags/" + tagName);
 			}
 			return;
@@ -145,32 +168,29 @@ public abstract class PlayEditor extends Editor {
 			String layoutName = hyper;
 			if (!hyper.endsWith("/html"))
 				layoutName = hyper + ".html";
-			else 
+			else
 				layoutName = hyper.substring(0, hyper.lastIndexOf("/html")) + ".html";
-				
+
 			if (isJapidView) {
-				if (layoutName.contains("/")){
+				if (layoutName.contains("/")) {
 					// should use absolute
 					if (layoutName.startsWith("japidviews")) {
 						getNav().goToViewAbs("app/" + layoutName);
-					}
-					else {
+					} else {
 						getNav().goToViewAbs("app/japidviews/" + layoutName);
 					}
-				}
-				else {
-					// simple layout name. test same package and the in the _layouts package
-					IFolder srcFolder = (IFolder)((IFileEditorInput)getEditorInput()).getFile().getParent();
+				} else {
+					// simple layout name. test same package and the in the
+					// _layouts package
+					IFolder srcFolder = (IFolder) ((IFileEditorInput) getEditorInput()).getFile().getParent();
 					IFile layoutFile = srcFolder.getFile(layoutName);
 					if (layoutFile.exists()) {
 						getNav().goToViewAbs(layoutFile.getProjectRelativePath().toString());
-					}
-					else {
+					} else {
 						getNav().goToViewAbs("app/japidviews/_layouts/" + layoutName);
 					}
 				}
-			}
-			else {
+			} else {
 				getNav().goToView("layouts/" + layoutName);
 			}
 		}
@@ -180,5 +200,5 @@ public abstract class PlayEditor extends Editor {
 			getNav().goToAction(nakedAction);
 		}
 	}
-	
+
 }

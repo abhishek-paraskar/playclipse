@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Playclipse
 Bundle-SymbolicName: org.playframework.playclipse; singleton:=true
-Bundle-Version: 0.8.3.1
+Bundle-Version: 0.8.3.2
 Bundle-Activator: org.playframework.playclipse.PlayPlugin
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
@@ -10,7 +10,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.resources,
  org.eclipse.jface.text,
  org.eclipse.ui.editors,
- org.eclipse.jdt.core
+ org.eclipse.jdt.core,
+ org.junit
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: org.eclipse.core.filebuffers,
  org.eclipse.core.resources,

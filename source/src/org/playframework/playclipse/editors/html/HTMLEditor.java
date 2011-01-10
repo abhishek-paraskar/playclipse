@@ -30,6 +30,8 @@ public class HTMLEditor extends PlayEditor {
 	private static final String KEYWORD = "keyword";
 	private static final String SKIPPED = "skipped";
 	private static final String ACTION2 = "action";
+	public static final String IMPORT = "import";
+	public static final String IMPORT_STATIC = "import_static";
 	private static final String EXPRESSION = "expression";
 	private static final String TAG2 = "tag";
 	private static final String STRING = "string";
@@ -162,29 +164,33 @@ public class HTMLEditor extends PlayEditor {
 			template(DOCTYPE, "Insert an HTML5 doctype element", "<!DOCTYPE html>");
 		}
 		// Magic
-		Matcher isTag = Pattern.compile("<([a-zA-Z]+)>").matcher(ctx);
-		if(isTag.matches()) {
-			String closeTag = "</" + isTag.group(1) + ">";
+		Matcher isHtmlTag = Pattern.compile("<([a-zA-Z]+)>").matcher(ctx);
+		if(isHtmlTag.matches()) {
+			String closeTag = "</" + isHtmlTag.group(1) + ">";
 			template(ctx, "Close the " + ctx + " HTML tag", "${cursor}"+closeTag);
 		}
 	}
 
 	// Hyperlink
 
-	Pattern extend_s = Pattern.compile("#\\{extends\\s+'([^']+)'");
-	Pattern extends_japid = Pattern.compile("[^`]?`\\s*extends\\s+'([^']+)'");
-	Pattern extends_japid2 = Pattern.compile("[^`]?`\\s*extends\\s+\"([^\"]+)\"");
-	Pattern extends_japid3 = Pattern.compile("[^`]?`\\s*extends\\s+([^\"\']+)");
-	Pattern include = Pattern.compile("#\\{include\\s+'([^']+)'");
-	Pattern action_invoke = Pattern.compile("#\\{\\s*invoke\\s+([-a-zA-Z0-9\\._]+)");
-	Pattern action_invoke2= Pattern.compile("[^`]?`\\s*invoke\\s+([-a-zA-Z0-9\\\\._]+)");
-	Pattern action = Pattern.compile("@\\{([^}]+)\\}");
-	Pattern action_in_tag = Pattern.compile("#\\{.+(@.+[)])");
-	Pattern tag = Pattern.compile("#\\{([-a-zA-Z0-9\\./_]+)");
+	static Pattern extend_s = Pattern.compile("#\\{extends\\s+'([^']+)'");
+	static Pattern extends_japid = Pattern.compile("[^`]?`\\s*extends\\s+'([^']+)'");
+	static Pattern extends_japid2 = Pattern.compile("[^`]?`\\s*extends\\s+\"([^\"]+)\"");
+	static Pattern extends_japid3 = Pattern.compile("[^`]?`\\s*extends\\s+([^\"\']+)");
+	static Pattern import_line = Pattern.compile("[^`]?`\\s*import\\s+([a-zA-Z0-9\\._]+)");
+	static Pattern import_static = Pattern.compile("[^`]?`\\s*import\\s+static\\s+([a-zA-Z0-9\\._]+)");
+	static Pattern include = Pattern.compile("#\\{include\\s+'([^']+)'");
+	static Pattern action_invoke = Pattern.compile("#\\{\\s*invoke\\s+([-a-zA-Z0-9\\._]+)");
+	static Pattern action_invoke2= Pattern.compile("[^`]?`\\s*invoke\\s+([-a-zA-Z0-9\\\\._]+)");
+	static Pattern action = Pattern.compile("@\\{([^}]+)\\}");
+	static Pattern action_in_tag = Pattern.compile("#\\{.+(@.+[)])");
+	static Pattern tag = Pattern.compile("#\\{([-a-zA-Z0-9\\./_]+)");
 
 	@Override
 	public IHyperlink detectHyperlink(ITextViewer textViewer, IRegion region) {
-		BestMatch match = findBestMatch(region.getOffset(), include, action_invoke, extend_s, extends_japid, extends_japid2, extends_japid3, action, action_in_tag, tag, action_invoke2);
+		BestMatch match = findBestMatch(region.getOffset(), 
+				include, action_invoke, extend_s, extends_japid, extends_japid2, extends_japid3, 
+				action, action_in_tag, tag, action_invoke2, import_line, import_static);
 		if(match != null) {
 //			System.out.println(match.text());
 			if(match.is(action) ) {
@@ -217,6 +223,12 @@ public class HTMLEditor extends PlayEditor {
 			}
 			if(match.is(action_in_tag)) {
 				return match.hyperlink(ACTION_IN_TAG2, match.matcher.start(1) - match.matcher.start(), 0);
+			}	
+			if(match.is(import_line)) {
+				return match.hyperlink(IMPORT, match.matcher.start(1) - match.matcher.start(), 0);
+			}	
+			if(match.is(import_static)) {
+				return match.hyperlink(IMPORT_STATIC, match.matcher.start(1) - match.matcher.start(), 0);
 			}	
 		}
 		return null;

@@ -1,5 +1,4 @@
 Source code
-
  
 
 - https://github.com/branaway/playclipse, branched from https://github.com/erwan/playclipse
@@ -32,7 +31,7 @@ Installation:
 
  
 
-- Just put the jar file in the dropins directory of the Eclipse installation and restart the  IDE. 
+- Just put the jar file in the dropins directory of the Eclipse installation and restart the IDE (withe -clean command line option if you don't see the JapidPlay menu in the IDE workbench window menu bar). 
 
 - Starting from version 0.6.0, the Japid module (http://www.playframework.org/modules/japid) bundles a distribution of this plugin in the eclipse plugin sub-directory in the module downloads. Please use the jar file in the bundle for best version match.
 
@@ -44,7 +43,7 @@ Note:
  
 
 - The plugin has been tested with Eclipse Helios (3.6).
-
+- Sometimes the -clean command line option is required for the Eclipse IDE to install the plugin.  
     
 
 Usage:
@@ -52,3 +51,23 @@ Usage:
  
 
 - Right click on your Play project and enable the Play nature to your Play/Japid application in the Eclipse, or the Japid transformation will not be integrated with the project building process, neither the popup menu will display the proper menu items. 
+
+History:
+
+2010/12/21:
+	1. work started. 
+2010/12/27:		
+	1. The "New controller" command can generate Japid controllers. 
+	2. the "Go to view" command can smartly go to either the Groovy based views or Japid  views, depending on the context.
+2011/1/1:
+	1. added a few commands to the package explorer context menu.
+	2. added context menu to go to action from a view editor.Works with Play html editor and  WST html editor.
+	3. added Japid template transformation to the build process to automate the template  conversion from the html files to Java code.
+	4. added comand in the editor context manu to switch between japid html and japid java  code.
+	5. enhanced the tag, action and layout navigation via ctrl-click in views.
+
+2011/1/5, version 0.8.2
+	1. support ctrl-click on #{invoke package.controller.action /} in views.
+2011/1/10, version 0.8.2.2
+	1. added support for ctrl-click on `import xxx.yyy.ZZZ in views, also import static
+	2. support ctrl-click on `invoke package.controller.action()  in views.

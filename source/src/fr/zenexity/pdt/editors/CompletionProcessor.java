@@ -54,6 +54,7 @@ public class CompletionProcessor extends TemplateCompletionProcessor {
 		return ctx;
 	}
 
+	@Override
 	protected ICompletionProposal createProposal(Template template, TemplateContext context, IRegion region, int relevance) {
 		return new AutoCorrectIndentationTemplateProposal(template, context, region, getImage(template), relevance);
 	}

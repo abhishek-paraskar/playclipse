@@ -17,6 +17,7 @@ public class AutoCorrectIndentationTemplateProposal extends TemplateProposal {
 		super(template, context, region, image, relevance);
 	}
 
+	@Override
 	@SuppressWarnings("deprecation")
 	public void apply(ITextViewer viewer, char trigger, int stateMask, int offset) {
 		try {
