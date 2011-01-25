@@ -3,16 +3,13 @@ package org.playframework.playclipse.editors;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.hyperlink.IHyperlink;
 import org.eclipse.ui.IFileEditorInput;
-import org.playframework.playclipse.FilesAccess;
 import org.playframework.playclipse.Navigation;
 import org.playframework.playclipse.PlayPlugin;
 import org.playframework.playclipse.editors.html.HTMLEditor;
@@ -51,27 +48,22 @@ public abstract class PlayEditor extends Editor {
 			if (linkText.endsWith(".") || linkText.endsWith("*")) {
 				return;
 			}
-			String imported = linkText.replace('.', '/');
-			
-			IFile file = getProject().getFile("app/" + imported + ".java");
-			try {
-				FilesAccess.openFile(file);
-			} catch (Exception e) {
-				PlayPlugin.showError(e.getMessage());
-			}
+//			String imported = linkText.replace('.', '/');
+			getNav().openClass(linkText);
 			return;
 		}
 		
 		if (typeLabel.equals(HTMLEditor.IMPORT_STATIC)) {
-			String imported = linkText.replace('.', '/');
-			if (imported.endsWith("/"))
+			String imported = linkText;
+			if (imported.endsWith("."))
 				imported = imported.substring(0, imported.length() - 1);
-			IFile file = getProject().getFile("app/" + imported + ".java");
-			try {
-				FilesAccess.openFile(file);
-			} catch (CoreException e) {
-				PlayPlugin.showError(e.getMessage());
-			}
+//			IFile file = getProject().getFile("app/" + imported + ".java");
+//			try {
+//				FilesAccess.openFile(file);
+//			} catch (CoreException e) {
+//				PlayPlugin.showError(e.getMessage());
+//			}
+			getNav().openClass(imported);
 			return;
 		}
 		

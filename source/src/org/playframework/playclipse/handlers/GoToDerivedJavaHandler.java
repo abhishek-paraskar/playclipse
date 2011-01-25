@@ -10,6 +10,8 @@ import org.eclipse.ui.IFileEditorInput;
 import org.playframework.playclipse.FilesAccess;
 import org.playframework.playclipse.PlayPlugin;
 
+import cn.bran.japid.util.DirUtil;
+
 import fr.zenexity.pdt.editors.EditorHelper;
 
 /**
@@ -26,7 +28,7 @@ public class GoToDerivedJavaHandler extends AbstractHandler {
 		EditorHelper editor = EditorHelper.getCurrent(event);
 		if(editor != null) {
 			String relativePath = ((IFileEditorInput) editor.textEditor.getEditorInput()).getFile().getProjectRelativePath().toString();
-			jFile = relativePath.substring(0, relativePath.lastIndexOf("html")) + "java";
+			jFile = DirUtil.mapSrcToJava(relativePath);
 			IFile f = editor.getProject().getFile(jFile);
 			try {
 				FilesAccess.openFile(f);

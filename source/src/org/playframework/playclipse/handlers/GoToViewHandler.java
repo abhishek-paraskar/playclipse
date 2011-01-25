@@ -28,13 +28,17 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IPackageDeclaration;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.ITypeHierarchy;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -46,6 +50,9 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import org.playframework.playclipse.FilesAccess;
 import org.playframework.playclipse.Navigation;
 import org.playframework.playclipse.PlayPlugin;
+
+import cn.bran.japid.util.DirUtil;
+import cn.bran.play.JapidController;
 
 import fr.zenexity.pdt.editors.EditorHelper;
 
@@ -70,13 +77,15 @@ public class GoToViewHandler extends AbstractHandler {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		window = HandlerUtil.getActiveWorkbenchWindowChecked(event);
 		EditorHelper editor = EditorHelper.getCurrent(event);
-
+		IProject project = editor.getProject();
+		IJavaProject jProject = JavaCore.create(project);
+		
 		if(editor != null) {
 			String relativePath = ((IFileEditorInput) editor.textEditor.getEditorInput()).getFile().getProjectRelativePath().toString();
 			if (relativePath.startsWith("app/japidviews/") && relativePath.endsWith(".java")) {
 				// bran: if we are in the japid derived Java template code, let's switch back to the html view
-				String jFile = relativePath.substring(0, relativePath.lastIndexOf("java")) + "html";
-				IFile f = editor.getProject().getFile(jFile);
+				String jFile = DirUtil.mapJavaToSrc(relativePath);
+				IFile f = project.getFile(jFile);
 				try {
 					FilesAccess.openFile(f);
 				} catch (CoreException e) {
@@ -116,10 +125,29 @@ public class GoToViewHandler extends AbstractHandler {
 				
 				// get the class declaration line
 				IType type = unit.getType(controllerName);
-				String superclassName = type.getSuperclassName();
-				if (superclassName.toLowerCase().contains("japid")) {
+				ITypeHierarchy superTypes = type.newSupertypeHierarchy(null);
+//				String name = JapidController.class.getName(); // this will require play.jar
+				String name = "cn.bran.play.JapidController";
+				IType japidController = jProject.findType(name);
+				if (superTypes.contains(japidController)) {
 					useJapid = true;
 				}
+				else {
+					useJapid = false;
+				}
+				
+//				String superclassName = type.getSuperclassName();
+//				if (superclassName.toLowerCase().contains("japid")) {
+//					useJapid = true;
+//				}
+				
+				// current selected elem
+			      IJavaElement[] elements= unit.codeSelect(selection.getOffset(), selection.getLength());
+			      if (elements.length > 0) {
+			    	  // TODO extract the current selection to tell if the cursor in on renderJapidXXX line
+			    	  System.out.println(elements);
+			      }
+
 			} catch (JavaModelException e) {
 				e.printStackTrace();
 			}

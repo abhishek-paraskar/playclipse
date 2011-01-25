@@ -39,6 +39,7 @@ public class PlayBuilder extends IncrementalProjectBuilder implements IPropertyC
 				(new RouteChecker(file, RouteEditor.MISSING_ROUTE)).check();
 				return false;
 			}
+			
 			if (TemplateChecker.isTemplate(resource.getFullPath())) {
 				deleteMarkers(file);
 				(new TemplateChecker(file, HTMLEditor.MISSING_ACTION)).check();
@@ -48,6 +49,13 @@ public class PlayBuilder extends IncrementalProjectBuilder implements IPropertyC
 		}
 	}
 
+	void checkRoute() {
+		IFile file = getProject().getFile("conf/routes");
+		if (file.exists()) {
+			deleteMarkers(file);
+			new RouteChecker(file, RouteEditor.MISSING_ROUTE).check();
+		}
+	}
 	public static final String BUILDER_ID = "org.playframework.playclipse.PlayBuilder";
 
 	@Override
@@ -61,7 +69,7 @@ public class PlayBuilder extends IncrementalProjectBuilder implements IPropertyC
 		case INCREMENTAL_BUILD:
 			System.out.println("-- inc build");
 			if (delta == null) {
-				fullBuild(monitor);
+				fullBuild(monitor); 
 			} else {
 				incrementalBuild(delta, monitor);
 			}
@@ -87,6 +95,7 @@ public class PlayBuilder extends IncrementalProjectBuilder implements IPropertyC
 		try {
 			ensureJapidViewsDir();
 			delta.accept(new JapidDeltaVisitor());
+			checkRoute();
 		} catch (CoreException e) {
 			PlayPlugin.showError(e);
 		}
@@ -173,7 +182,7 @@ public class PlayBuilder extends IncrementalProjectBuilder implements IPropertyC
 			getProject().accept(new ResourceVisitor());
 			JapidFullBuildCollector batchCompiler = new JapidFullBuildCollector();
 			getProject().accept(batchCompiler);
-			batchCompiler.startWork(monitor);
+			batchCompiler.build(monitor);
 		} catch (CoreException e) {
 			e.printStackTrace();
 		}

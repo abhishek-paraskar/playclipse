@@ -118,11 +118,11 @@ public class GoToActionHandler extends AbstractHandler {
 		String action = null;
 		if (relativePath.startsWith(APP_JAPIDVIEWS)) {
 			action = relativePath.substring(APP_JAPIDVIEWS.length() + 1).replace("/", ".");
-			action = action.substring(0, action.length() - ".html".length());
+			action = action.substring(0, action.lastIndexOf('.'));
 		}
 		else if (relativePath.startsWith(APP_VIEWS)) {
 			action = relativePath.substring(APP_VIEWS.length() + 1).replace("/", ".");
-			action = action.substring(0, action.length() - ".html".length());
+			action = action.substring(0, action.lastIndexOf('.'));
 		} 
 		return action;
 	}

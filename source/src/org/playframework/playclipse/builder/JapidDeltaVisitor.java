@@ -6,6 +6,8 @@ import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.runtime.CoreException;
 
+import cn.bran.japid.util.DirUtil;
+
 public class JapidDeltaVisitor implements IResourceDeltaVisitor {
 	static {
 		JapidFullBuildVisitor.initTemplateCLassMeta();
@@ -19,11 +21,10 @@ public class JapidDeltaVisitor implements IResourceDeltaVisitor {
 			if (res instanceof IFile) {
 				IFile f = ((IFile)res);
 				System.out.println("res deleted: " + f);
-				String filePath = f.getProjectRelativePath().toString();
-				boolean isTemplate = filePath.startsWith("app/japidviews") && "html".equals(f.getFileExtension());
-				if (isTemplate) {
+				if (isTemplateSource(f)) {
 					// remove the generated java code
-					String templateJavaFile  = filePath.substring(0, filePath.lastIndexOf(".html")) + ".java";
+					String filePath = f.getProjectRelativePath().toString();
+					String templateJavaFile  = DirUtil.mapSrcToJava(filePath);
 					IFile jFile = f.getProject().getFile(templateJavaFile);
 					if (jFile.exists()) {
 						jFile.delete(true, null);
@@ -40,6 +41,24 @@ public class JapidDeltaVisitor implements IResourceDeltaVisitor {
 		}
 
 		return true;
+	}
+
+	/**
+	 * @param f
+	 * @param filePath
+	 * @return
+	 */
+	public static boolean isTemplateSource(IFile f) {
+		String filePath = f.getProjectRelativePath().toString();
+		boolean isTemplate = filePath.startsWith("app/japidviews") && 
+			("html".equals(f.getFileExtension())
+				|| "xml".equals(f.getFileExtension())
+				|| "json".equals(f.getFileExtension())
+				|| "js".equals(f.getFileExtension())
+				|| "css".equals(f.getFileExtension())
+				|| "txt".equals(f.getFileExtension())
+			);
+		return isTemplate;
 	}
 
 

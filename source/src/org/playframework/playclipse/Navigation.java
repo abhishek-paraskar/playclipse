@@ -5,6 +5,8 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.IClassFile;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
@@ -12,42 +14,45 @@ import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchWindow;
-
 
 import fr.zenexity.pdt.editors.EditorHelper;
 
 public final class Navigation {
 //	private EditorHelper editorHelper;
-	private IWorkbenchWindow window;
+//	private IWorkbenchWindow window;
 	private IProject project;
 	private IJavaProject javaProject;
 
 	public Navigation(EditorHelper editorHelper) {
 //		this.editorHelper = editorHelper;
-		this.window = editorHelper.getWindow();
+//		this.window = editorHelper.getWindow();
 		this.project = editorHelper.getProject();
 		this.javaProject = JavaCore.create(project);
 	}
 
 	public Navigation(IWorkbenchWindow window,  IProject project) {
-		this.window = window;
+//		this.window = window;
 		this.project = project;
 		this.javaProject = JavaCore.create(project);
 	}
 
+	public Navigation(IProject project) {
+//		this.window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		this.project = project;
+		this.javaProject = JavaCore.create(project);
+	}
+	
+	
 	private IType findType(String name) {
 		try {
 			IType type = javaProject.findType(name);
-			System.out.println("Type for " + name + ": " + type);
+//			System.out.println("Type for " + name + ": " + type);
 			return type;
 		} catch (CoreException e) {
-			// TODO Auto-generated catch block
-			System.out.println(e);
-			e.printStackTrace();
+			PlayPlugin.showError(e.getMessage());
 		}
 		return null;
 	}
@@ -83,6 +88,43 @@ public final class Navigation {
 			// Should never happen
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * open a java code editor for the class source
+	 * @param className
+	 * @author bran
+	 */
+	public void openClass(String className) {
+		IType type = findType(className);
+		if (type == null) {
+			PlayPlugin.showError("The controller " + className + " can't be found.");
+			return;
+		}
+		
+		IFile file = null;
+		try {
+			if (!type.isBinary()) {
+				ICompilationUnit cu = type.getCompilationUnit();
+				file = (IFile)cu.getCorrespondingResource();
+			} else {
+				// the type is in binary form, meaning a type in the classpath
+				if(type.getParent() instanceof IClassFile) {
+					return; // TODO what to do with class in classpath?
+				}
+			}
+		} catch (JavaModelException e1) {
+			// Should not happen
+			e1.printStackTrace();
+			return;
+		}
+		try {
+			if (file != null)
+				FilesAccess.openFile(file);
+		} catch (CoreException e) {
+			PlayPlugin.showError(e.getMessage());
+		}
+		
 	}
 
 	/**

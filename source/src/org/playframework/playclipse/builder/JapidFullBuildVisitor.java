@@ -7,10 +7,10 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
 
 import bran.japidplugin.TemplateTransformer;
 import cn.bran.japid.classmeta.AbstractTemplateClassMetaData;
+import cn.bran.japid.util.DirUtil;
 import cn.bran.play.JapidPlayAdapter;
 import cn.bran.play.JapidPlugin;
 import cn.bran.play.NoEnhance;
@@ -52,22 +52,19 @@ public class JapidFullBuildVisitor implements IResourceVisitor {
 	 */
 	public static void convertTemplate(IResource res) throws CoreException {
 		IFile f = ((IFile)res);
-		String filePath = f.getProjectRelativePath().toString();
-		boolean isTemplate = filePath.startsWith("app/japidviews") && "html".equals(f.getFileExtension());
-		if (isTemplate) {
-			String templateJavaFile  = f.getProjectRelativePath().toString().substring(0, filePath.lastIndexOf(".html")) + ".java";
+		if (JapidDeltaVisitor.isTemplateSource(f)) {
+			InputStream is = transform(f);
+
+			String templateJavaFile  = DirUtil.mapSrcToJava(f.getProjectRelativePath().toString());
 			IFile jFile = f.getProject().getFile(templateJavaFile);
 			
-			InputStream is = transform(f);
-			
-			if (!jFile.exists()) {
-				jFile.create(is, true, null);
-				jFile.setDerived(true, null);
-			}
-			else {
-				jFile.setContents(is, IFile.FORCE, null);
-				jFile.setDerived(true, null);
-			}
+				if (!jFile.exists()) {
+					jFile.create(is, true, null);
+					jFile.setDerived(true, null);
+				} else {
+					jFile.setContents(is, IFile.FORCE, null);
+					jFile.setDerived(true, null);
+				}
 		}
 	}
 

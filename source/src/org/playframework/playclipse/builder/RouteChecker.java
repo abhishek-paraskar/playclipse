@@ -22,6 +22,7 @@ public class RouteChecker extends ErrorChecker {
 		if (getSeverity() < 0) return; // Preference says to ignore missing routes
 		try {
 			IO.readLines(file, new LineReader() {
+				@Override
 				public void readLine(String line, int lineNumber, int offset) {
 					if (comment.matcher(line).find()) {
 						// commented line

@@ -5,8 +5,17 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.annotation.Annotation;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.formatter.CodeFormatter;
+import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
+import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.text.edits.TextEdit;
 
 import cn.bran.japid.classmeta.AbstractTemplateClassMetaData;
 import cn.bran.japid.compiler.JapidAbstractCompiler;
@@ -74,9 +83,36 @@ public class TemplateTransformer {
 			c = new JapidTemplateCompiler();
 		}
 		c.compile(temp);
-		return temp.javaSource;
+
+		// now we have the derived source
+		String text = temp.javaSource;
+		
+		String newline = "\n";//System.getProperty("line.separator");
+		String[] lines = text.split("[" + newline + "]");
+		text = "";
+		for (String l : lines) {
+			if (!EMPLINE.matcher(l).matches()) {
+				text += l + "\n";
+			}
+		}
+		
+		// let's format the code
+		@SuppressWarnings("unchecked")
+		Map<String, String> options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		// initialize the compiler settings to be able to format 1.5 code
+		options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_6);
+		options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_6);
+		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_6);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_JOIN_WRAPPED_LINES, DefaultCodeFormatterConstants.FALSE);
+
+		CodeFormatter codeFormatter = ToolFactory.createCodeFormatter(options);
+		TextEdit format = codeFormatter.format(CodeFormatter.K_COMPILATION_UNIT, text, 0, text.length(), 0, null);
+		IDocument document= new Document(text);
+		format.apply(document);
+		return document.get();
 	}
 
+	static Pattern EMPLINE = Pattern.compile("\\s*;?// line [0-9]+.*");
 	/**
 	 * add class level annotation for whatever purpose
 	 * 
