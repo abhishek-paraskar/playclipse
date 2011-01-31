@@ -22,25 +22,39 @@ public class JapidDeltaVisitor implements IResourceDeltaVisitor {
 				IFile f = ((IFile)res);
 				System.out.println("res deleted: " + f);
 				if (isTemplateSource(f)) {
-					// remove the generated java code
-					String filePath = f.getProjectRelativePath().toString();
-					String templateJavaFile  = DirUtil.mapSrcToJava(filePath);
-					IFile jFile = f.getProject().getFile(templateJavaFile);
-					if (jFile.exists()) {
-						jFile.delete(true, null);
-					}
+					removeDerivedFile(f);
 				}
 			}
 			break;
 		case IResourceDelta.ADDED:
 		case IResourceDelta.CHANGED:
 			if (res instanceof IFile) {
+				// remove derived first
+				IFile f = ((IFile)res);
+				if (isTemplateSource(f)) {
+					removeDerivedFile(f);
+				}
+				// create new
 				JapidFullBuildVisitor.convertTemplate(res);
 			}
 			break;
 		}
 
 		return true;
+	}
+
+	/**
+	 * @param f
+	 * @throws CoreException
+	 */
+	private static void removeDerivedFile(IFile f) throws CoreException {
+		// remove the generated java code
+		String filePath = f.getProjectRelativePath().toString();
+		String templateJavaFile  = DirUtil.mapSrcToJava(filePath);
+		IFile jFile = f.getProject().getFile(templateJavaFile);
+		if (jFile.exists()) {
+			jFile.delete(true, null);
+		}
 	}
 
 	/**

@@ -21,6 +21,7 @@ import cn.bran.japid.classmeta.AbstractTemplateClassMetaData;
 import cn.bran.japid.compiler.JapidAbstractCompiler;
 import cn.bran.japid.compiler.JapidLayoutCompiler;
 import cn.bran.japid.compiler.JapidTemplateCompiler;
+import cn.bran.japid.compiler.JapidTemplateTransformer;
 import cn.bran.japid.template.JapidTemplate;
 
 /**
@@ -76,7 +77,7 @@ public class TemplateTransformer {
 		fileName =  fileName.replace('/', File.separatorChar);
 		JapidTemplate temp = new JapidTemplate(fileName, src);
 		JapidAbstractCompiler c = null;
-		if (src.indexOf("#{doLayout") >= 0 || src.indexOf("#{get") >= 0) {
+		if (JapidTemplateTransformer.looksLikeLayout(src)) {
 			c = new JapidLayoutCompiler();
 		} else {
 			// regular template and tag are the same thing

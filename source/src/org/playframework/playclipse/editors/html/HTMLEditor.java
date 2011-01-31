@@ -28,7 +28,7 @@ public class HTMLEditor extends PlayEditor {
 	private static final String INCLUDE2 = "include";
 	private static final String EXTENDS = "extends";
 	private static final String KEYWORD = "keyword";
-	private static final String SKIPPED = "skipped";
+	private static final String COMMENT = "skipped"; // comment area
 	private static final String ACTION2 = "action";
 	public static final String IMPORT = "import";
 	public static final String IMPORT_STATIC = "import_static";
@@ -69,36 +69,36 @@ public class HTMLEditor extends PlayEditor {
 
 	@Override
 	public String[] getTypes() {
-		return new String[] {DEFAULT, DOCTYPE, HTML, STRING, TAG2, EXPRESSION, ACTION2, SKIPPED, KEYWORD, JAVA_LINE};
+		return new String[] { DEFAULT, DOCTYPE, HTML, STRING, TAG2, EXPRESSION, ACTION2, COMMENT, KEYWORD, JAVA_LINE };
 	}
 
 	@Override
 	public String getStylePref(String type) {
-		if(type.equals(DOCTYPE)) {
+		if (type.equals(DOCTYPE)) {
 			return DOCTYPE_COLOR;
 		}
-		if(type.equals(HTML)) {
+		if (type.equals(HTML)) {
 			return HTML_COLOR;
 		}
-		if(type.equals(STRING)) {
+		if (type.equals(STRING)) {
 			return STRING_COLOR;
 		}
-		if(type.equals(TAG2)) {
+		if (type.equals(TAG2)) {
 			return TAG_COLOR;
 		}
-		if(type.equals(EXPRESSION)) {
+		if (type.equals(EXPRESSION)) {
 			return EXPR_COLOR;
 		}
-		if(type.equals(ACTION2)) {
+		if (type.equals(ACTION2)) {
 			return ACTION_COLOR;
 		}
-		if(type.equals(SKIPPED)) {
+		if (type.equals(COMMENT)) {
 			return SKIPPED_COLOR;
 		}
-		if(type.equals(KEYWORD)) {
+		if (type.equals(KEYWORD)) {
 			return KEYWORD_COLOR;
 		}
-		if(type.equals(JAVA_LINE)) {
+		if (type.equals(JAVA_LINE)) {
 			return JAVA_LINE_COLOR;
 		}
 		return DEFAULT_COLOR;
@@ -108,38 +108,38 @@ public class HTMLEditor extends PlayEditor {
 
 	@Override
 	public String autoClose(char pc, char c, char nc) {
-		if(c == '<') {
+		if (c == '<') {
 			return ">";
 		}
-		if(c == '>' && nc == '>') {
+		if (c == '>' && nc == '>') {
 			return SKIP;
 		}
-		if(c == '{') {
+		if (c == '{') {
 			return "}";
 		}
-		if(c == '}' && nc == '}') {
+		if (c == '}' && nc == '}') {
 			return SKIP;
 		}
-		if(c == '(') {
+		if (c == '(') {
 			return ")";
 		}
-		if(c == ')' && nc == ')') {
+		if (c == ')' && nc == ')') {
 			return SKIP;
 		}
-		if(c == '[') {
+		if (c == '[') {
 			return "]";
 		}
-		if(c == ']' && nc == ']') {
+		if (c == ']' && nc == ']') {
 			return SKIP;
 		}
-		if(c == '\'') {
-			if(nc == '\'') {
+		if (c == '\'') {
+			if (nc == '\'') {
 				return SKIP;
 			}
 			return "\'";
 		}
-		if(c == '\"') {
-			if(nc == '\"') {
+		if (c == '\"') {
+			if (nc == '\"') {
 				return SKIP;
 			}
 			return "\"";
@@ -151,13 +151,13 @@ public class HTMLEditor extends PlayEditor {
 
 	@Override
 	public void templates(String contentType, String ctx) {
-		if(contentType == DEFAULT || contentType == HTML || contentType == STRING) {
+		if (contentType == DEFAULT || contentType == HTML || contentType == STRING) {
 			template("$", "Insert dynamic expression", "$${${}}${cursor}");
 			template(TAG2, "Insert tag without body", "#{${name} ${}/}${cursor}");
 			template(ACTION2, "Insert action", "@{${}}${cursor}");
 			template(TAG2, "Insert tag with body", "##{${name} ${}}${cursor}#{/${name}}");
 		}
-		if(contentType == DEFAULT) {
+		if (contentType == DEFAULT) {
 			template("if", "Insert a #if tag", "#{if ${}}\n    ${cursor}\n#{/if}");
 			template(EXTENDS, "Insert a #extends tag", "#{extends '${}' /}${cursor}");
 			template("list", "Insert a #list tag", "#{list ${}, as:'${i}'}\n    ${cursor}\n#{/list>");
@@ -165,13 +165,14 @@ public class HTMLEditor extends PlayEditor {
 		}
 		// Magic
 		Matcher isHtmlTag = Pattern.compile("<([a-zA-Z]+)>").matcher(ctx);
-		if(isHtmlTag.matches()) {
+		if (isHtmlTag.matches()) {
 			String closeTag = "</" + isHtmlTag.group(1) + ">";
-			template(ctx, "Close the " + ctx + " HTML tag", "${cursor}"+closeTag);
+			template(ctx, "Close the " + ctx + " HTML tag", "${cursor}" + closeTag);
 		}
 	}
 
-	// Hyperlink
+	// Hyperlinks: note: the intersting part must the match group 1. see the
+	// hyperlink method in Editor
 
 	static Pattern extend_s = Pattern.compile("#\\{extends\\s+'([^']+)'");
 	static Pattern extends_japid = Pattern.compile("[^`]?`\\s*extends\\s+'([^']+)'");
@@ -181,55 +182,73 @@ public class HTMLEditor extends PlayEditor {
 	static Pattern import_static = Pattern.compile("[^`]?`\\s*import\\s+static\\s+([a-zA-Z0-9\\._]+)");
 	static Pattern include = Pattern.compile("#\\{include\\s+'([^']+)'");
 	static Pattern action_invoke = Pattern.compile("#\\{\\s*invoke\\s+([-a-zA-Z0-9\\._]+)");
-	static Pattern action_invoke2= Pattern.compile("[^`]?`\\s*invoke\\s+([-a-zA-Z0-9\\\\._]+)");
+	static Pattern action_invoke2 = Pattern.compile("[^`]?`\\s*invoke\\s+([-a-zA-Z0-9\\\\._]+)");
+	static Pattern action_invoke3 = Pattern.compile("[^`]?`a\\s+([\\w\\d\\./]+)");
+	static Pattern action_invoke4 = Pattern.compile("[^`]?`\\s*action\\s+([\\w\\d\\./]+)");
 	static Pattern action = Pattern.compile("@\\{([^}]+)\\}");
 	static Pattern action_in_tag = Pattern.compile("#\\{.+(@.+[)])");
 	static Pattern tag = Pattern.compile("#\\{([-a-zA-Z0-9\\./_]+)");
+	static Pattern tag2 = Pattern.compile("[^`]*`tag\\s+([\\w\\d\\./]+)");
+	static Pattern tag3 = Pattern.compile("[^`]*`t\\s+([\\w\\d\\./]+)");
 
 	@Override
 	public IHyperlink detectHyperlink(ITextViewer textViewer, IRegion region) {
-		BestMatch match = findBestMatch(region.getOffset(), 
-				include, action_invoke, extend_s, extends_japid, extends_japid2, extends_japid3, 
-				action, action_in_tag, tag, action_invoke2, import_line, import_static);
-		if(match != null) {
-//			System.out.println(match.text());
-			if(match.is(action) ) {
+		BestMatch match = findBestMatch(region.getOffset(),
+				include, action_invoke, extend_s, extends_japid, extends_japid2, extends_japid3,
+				action, action_in_tag, tag, action_invoke2, action_invoke3, action_invoke4, import_line, import_static,
+				tag2, tag3
+				);
+		if (match != null) {
+			// System.out.println(match.text());
+			if (match.is(action)) {
 				return match.hyperlink(ACTION2, 0, 0);
 			}
-			if(match.is(action_invoke) ) {
+			if (match.is(action_invoke)) {
 				return match.hyperlink(ACTION2, match.matcher.start(1) - match.matcher.start(), 0);
 			}
-			if(match.is(action_invoke2) ) {
+			if (match.is(action_invoke2)) {
 				return match.hyperlink(ACTION2, match.matcher.start(1) - match.matcher.start(), 0);
 			}
-			if(match.is(tag)) {
+			if (match.is(action_invoke3)) {
+				return match.hyperlink(ACTION2, match.matcher.start(1) - match.matcher.start(), 0);
+			}
+			if (match.is(action_invoke4)) {
+				return match.hyperlink(ACTION2, match.matcher.start(1) - match.matcher.start(), 0);
+			}
+			if (match.is(tag)) {
 				if (!match.text().equals("invoke") && !match.text().equals("Each"))
 					return match.hyperlink(TAG2, 2, 0);
 			}
-			if(match.is(extend_s)) {
+			if (match.is(extend_s)) {
 				return match.hyperlink(EXTENDS, match.matcher.start(1) - match.matcher.start(), -1);
 			}
-			if(match.is(extends_japid)) {
+			if (match.is(extends_japid)) {
 				return match.hyperlink(EXTENDS, match.matcher.start(1) - match.matcher.start(), -1);
 			}
-			if(match.is(extends_japid2)) {
+			if (match.is(extends_japid2)) {
 				return match.hyperlink(EXTENDS, match.matcher.start(1) - match.matcher.start(), -1);
 			}
-			if(match.is(extends_japid3)) {
+			if (match.is(extends_japid3)) {
 				return match.hyperlink(EXTENDS, match.matcher.start(1) - match.matcher.start(), 0);
 			}
-			if(match.is(include)) {
+			if (match.is(include)) {
 				return match.hyperlink(INCLUDE2, match.matcher.start(1) - match.matcher.start(), -1);
 			}
-			if(match.is(action_in_tag)) {
+			if (match.is(action_in_tag)) {
 				return match.hyperlink(ACTION_IN_TAG2, match.matcher.start(1) - match.matcher.start(), 0);
-			}	
-			if(match.is(import_line)) {
+			}
+			if (match.is(import_line)) {
 				return match.hyperlink(IMPORT, match.matcher.start(1) - match.matcher.start(), 0);
-			}	
-			if(match.is(import_static)) {
+			}
+			if (match.is(import_static)) {
 				return match.hyperlink(IMPORT_STATIC, match.matcher.start(1) - match.matcher.start(), 0);
-			}	
+			}
+			if (match.is(tag2)) {
+				return match.hyperlink(TAG2, match.matcher.start(1) - match.matcher.start(), 0);
+			}
+			if (match.is(tag3)) {
+				return match.hyperlink(TAG2, match.matcher.start(1) - match.matcher.start(), 0);
+			}
 		}
 		return null;
 	}
@@ -250,117 +269,157 @@ public class HTMLEditor extends PlayEditor {
 
 	@Override
 	public String scan() {
-		if(isNext("*{") && state != SKIPPED) {
-			oldState = state;
-			return found(SKIPPED, 0);
+		if (isNext("*{") && state != COMMENT) {
+			saveState();
+			return found(COMMENT, 0);
 		}
-		if(state == SKIPPED) {
-			if(isNext("}*")) {
+		if (state == COMMENT) {
+			if (isNext("}*")) {
 				return found(oldState, 2);
 			}
 		}
-		if(state == DEFAULT || state == HTML || state == STRING) {
-			if(isNext("#{")) {
-				oldState = state;
+		if (state == DEFAULT || state == HTML || state == STRING) {
+			if (isNext("#{")) {
+				saveState();
 				return found(TAG2, 0);
 			}
-			if(isNext("${")) {
-				oldState = state;
+			if (isNext("${")) {
+				saveState();
 				return found(EXPRESSION, 0);
 			}
-			if(isNext("@{") || isNext("@@{")) {
-				oldState = state;
+			if (isNext("@{") || isNext("@@{")) {
+				saveState();
 				return found(ACTION2, 0);
 			}
-			if(isNext("``")) {
+			if (isNext("``")) {
 				return found(oldState, 2);
 			}
-			if(isNext("`") && !isNext("``")) {
-				oldState = state;
+			if (isNext("`") && !isNext("``")) {
+				saveState();
 				return found(JAVA_LINE, 0);
+			}
+			// was trying to implement an escape-less }, but it may be too
+			// confusing with json, javascript syntax etc.
+			// so it's disabled for now.
+			// if(isNext("}")){
+			// String prevTokenString = content.substring(end2, end - 1);
+			// if (allLeadingSpaceInline(prevTokenString)) {
+			// saveState();
+			// return found(JAVA_LINE, 0);
+			// }
+			// }
+		}
+
+		if (state == JAVA_LINE) {
+			if (isNext("\n")) {
+				return found(oldState, 1);
 			}
 		}
 
-		if(state == JAVA_LINE) {
-			if(isNext("\n")) {
+		if (state == TAG2 || state == EXPRESSION || state == ACTION2) {
+			if (isNext("}")) {
 				return found(oldState, 1);
 			}
 		}
-		
-		if(state == TAG2 || state == EXPRESSION || state == ACTION2) {
-			if(isNext("}")) {
-				return found(oldState, 1);
-			}
-		}
-		if(state == DEFAULT) {
-			if(isNext("<!DOCTYPE")) {
+		if (state == DEFAULT) {
+			if (isNext("<!DOCTYPE")) {
 				return found(DOCTYPE, 0);
 			}
-			if(isNext("<")) {
+			if (isNext("<")) {
 				return found(HTML, 0);
 			}
-			if(isNext("var ")) {
+			if (isNext("var ")) {
 				return found(KEYWORD, 0);
 			}
-			if(isNext("def ")) {
+			if (isNext("def ")) {
 				return found(KEYWORD, 0);
 			}
-			if(isNext("return ")) {
+			if (isNext("return ")) {
 				return found(KEYWORD, 0);
 			}
-			if(isNext("function(")) {
+			if (isNext("function(")) {
 				return found(KEYWORD, 0);
 			}
-			if(isNext("function ")) {
+			if (isNext("function ")) {
 				return found(KEYWORD, 0);
 			}
-			if(isNext("if(")) {
+			if (isNext("if(")) {
 				return found(KEYWORD, 0);
 			}
-			if(isNext("if ")) {
+			if (isNext("if ")) {
 				return found(KEYWORD, 0);
 			}
-			if(isNext("else ")) {
+			if (isNext("else ")) {
 				return found(KEYWORD, 0);
 			}
-			if(isNext("switch(")) {
+			if (isNext("switch(")) {
 				return found(KEYWORD, 0);
 			}
-			if(isNext("switch ")) {
+			if (isNext("switch ")) {
 				return found(KEYWORD, 0);
 			}
 		}
-		if(state == KEYWORD) {
-			if(isNext(" ") || isNext("(")) {
+		if (state == KEYWORD) {
+			if (isNext(" ") || isNext("(")) {
 				return found(DEFAULT, 0);
 			}
 		}
-		if(state == DOCTYPE || state == HTML) {
-			if(isNext(">")) {
+		if (state == DOCTYPE || state == HTML) {
+			if (isNext(">")) {
 				return found(DEFAULT, 1);
 			}
 		}
-		if(state == HTML) {
-			if(isNext("\"")) {
+		if (state == HTML) {
+			if (isNext("\"")) {
 				openedString = '\"';
 				consumeString = false;
 				oldStringState = state;
 				return found(STRING, 0);
 			}
-			if(isNext("'")) {
+			if (isNext("'")) {
 				openedString = '\'';
 				consumeString = false;
 				oldStringState = state;
 				return found(STRING, 0);
 			}
 		}
-		if(state == STRING) {
-			if(isNext(""+openedString) && consumeString) {
+		if (state == STRING) {
+			if (isNext("" + openedString) && consumeString) {
 				return found(oldStringState, 1);
 			}
 			consumeString = true;
 		}
 		return null;
+	}
+
+	/**
+	 * bran:copied from JapidParser
+	 * 
+	 * @param curToken
+	 * @return
+	 */
+	static boolean allLeadingSpaceInline(String curToken) {
+		boolean allLeadingSpace = true;
+		int len = curToken.length();
+		for (int i = len - 1; i > -1; i--) {
+			char ch = curToken.charAt(i);
+			if (ch == '\n')
+				break;
+			else if (ch == ' ' || ch == '\t')
+				continue;
+			else {
+				allLeadingSpace = false;
+				break;
+			}
+		}
+		return allLeadingSpace;
+	}
+
+	/**
+	 * 
+	 */
+	private void saveState() {
+		oldState = state;
 	}
 
 	// Folding
@@ -371,8 +430,8 @@ public class HTMLEditor extends PlayEditor {
 	public void updateFoldingStructure(ArrayList<Position> positions) {
 		Annotation[] annotations = new Annotation[positions.size()];
 
-		//this will hold the new annotations along
-		//with their corresponding positions
+		// this will hold the new annotations along
+		// with their corresponding positions
 		HashMap<ProjectionAnnotation, Position> newAnnotations = new HashMap<ProjectionAnnotation, Position>();
 
 		for (int i = 0; i < positions.size(); i++) {
@@ -389,7 +448,7 @@ public class HTMLEditor extends PlayEditor {
 	@Override
 	public void createPartControl(Composite parent) {
 		super.createPartControl(parent);
-		ProjectionViewer viewer = (ProjectionViewer)getSourceViewer();
+		ProjectionViewer viewer = (ProjectionViewer) getSourceViewer();
 		projectionSupport = new ProjectionSupport(viewer, getAnnotationAccess(), getSharedColors());
 		projectionSupport.install();
 		viewer.doOperation(ProjectionViewer.TOGGLE);
@@ -408,7 +467,7 @@ public class HTMLEditor extends PlayEditor {
 	public void propertyChange(PropertyChangeEvent event) {
 		String key = event.getProperty();
 		if (key.equals(SOFT_TABS)) {
-			useSoftTabs = ((Boolean)event.getNewValue()).booleanValue();
+			useSoftTabs = ((Boolean) event.getNewValue()).booleanValue();
 		}
 		super.propertyChange(event);
 	}

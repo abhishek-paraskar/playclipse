@@ -197,7 +197,9 @@ public abstract class Editor extends TextEditor implements VerifyListener, IProp
 		}
 
 		public IHyperlink hyperlink(final String type, int startOffset, int endOffset) {
-			final IRegion region= new Region(offset+matcher.start()+startOffset, matcher.end()-matcher.start()-startOffset+endOffset);
+			final IRegion region= new Region(
+					offset + matcher.start() + startOffset,
+					matcher.end() - matcher.start() - startOffset + endOffset);
 			return new IHyperlink() {
 
 				@Override

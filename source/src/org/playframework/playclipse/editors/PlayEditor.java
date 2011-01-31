@@ -48,25 +48,25 @@ public abstract class PlayEditor extends Editor {
 			if (linkText.endsWith(".") || linkText.endsWith("*")) {
 				return;
 			}
-//			String imported = linkText.replace('.', '/');
+			// String imported = linkText.replace('.', '/');
 			getNav().openClass(linkText);
 			return;
 		}
-		
+
 		if (typeLabel.equals(HTMLEditor.IMPORT_STATIC)) {
 			String imported = linkText;
 			if (imported.endsWith("."))
 				imported = imported.substring(0, imported.length() - 1);
-//			IFile file = getProject().getFile("app/" + imported + ".java");
-//			try {
-//				FilesAccess.openFile(file);
-//			} catch (CoreException e) {
-//				PlayPlugin.showError(e.getMessage());
-//			}
+			// IFile file = getProject().getFile("app/" + imported + ".java");
+			// try {
+			// FilesAccess.openFile(file);
+			// } catch (CoreException e) {
+			// PlayPlugin.showError(e.getMessage());
+			// }
 			getNav().openClass(imported);
 			return;
 		}
-		
+
 		if (typeLabel.equals(ACTION)) {
 			if (linkText.startsWith("'") && linkText.endsWith("'")) {
 				// Static file, e.g. @{'/public/images/favicon.png'}
@@ -133,7 +133,11 @@ public abstract class PlayEditor extends Editor {
 		if (typeLabel.equals(TAG)) {
 			String tagName = hyper + ".html";
 			if (isJapidView) {
-				if (tagName.contains("/")) {
+				if (hyper.startsWith("/")) {
+					// append current file path
+					tagName  = filepath.substring(0, filepath.lastIndexOf('/')) + tagName;
+					getNav().goToViewAbs(tagName);
+				} else if (tagName.contains("/")) {
 					// should use absolute
 					if (tagName.startsWith("japidviews")) {
 						getNav().goToViewAbs("app/" + tagName);

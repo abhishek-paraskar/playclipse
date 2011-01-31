@@ -59,4 +59,34 @@ public class HTMLEditorTest {
 		assertTrue(EMPLINE.matcher(lines[0]).matches());
 		assertTrue(EMPLINE.matcher(lines[linesep.length()]).matches());
 	}
+	
+	/**
+	 * @param linesep
+	 */
+	@Test
+	public void testTagCommand() {
+		Pattern p = Pattern.compile("[^`]*`(tag|t)\\s+([\\w\\d\\./]+)\\s+.*");
+		String line = "xx `tag my.Tag a b" ;
+		Matcher matcher = p.matcher(line);
+		assertTrue(matcher.matches());
+		assertEquals("my.Tag", matcher.group(2));
+
+		line = "xx `t my.Tag a b" ;
+		matcher = p.matcher(line);
+		assertTrue(matcher.matches());
+		assertEquals("my.Tag", matcher.group(2));
+		
+	}
+
+	@Test
+	public void testTag3Command() {
+		Pattern p = Pattern.compile("[^`]*`t\\s+([\\w\\d\\./]+)\\s*\\(.*");
+		String line = "xx `t my.Tag(a, b)" ;
+		Matcher matcher = p.matcher(line);
+		assertTrue(matcher.matches());
+		assertEquals("my.Tag", matcher.group(1));
+		
+	}
+	
+	
 }

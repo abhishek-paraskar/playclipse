@@ -86,8 +86,12 @@ public class DocumentProvider extends FileDocumentProvider {
 							// Overlap on the beginning of the zone
 							regions.add(new TypedRegion(offset, (stop - offset), current.getType()));
 						} else if (start <= offset && stop > offset + length) {
+							// XXX this condition actually contains the previous one. problem? --bran
 							// Overlap on the end of the zone
 							regions.add(new TypedRegion(start, (offset + length - start), current.getType()));
+						}
+						else if (start > offset + length ) { // bran cut off
+							break;
 						}
 					}
 					return regions.toArray(new ITypedRegion[regions.size()]);
