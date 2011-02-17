@@ -16,6 +16,7 @@ import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.text.edits.TextEdit;
+import org.playframework.playclipse.PlayPlugin;
 
 import cn.bran.japid.classmeta.AbstractTemplateClassMetaData;
 import cn.bran.japid.compiler.JapidAbstractCompiler;
@@ -83,8 +84,8 @@ public class TemplateTransformer {
 			// regular template and tag are the same thing
 			c = new JapidTemplateCompiler();
 		}
+	
 		c.compile(temp);
-
 		// now we have the derived source
 		String text = temp.javaSource;
 		

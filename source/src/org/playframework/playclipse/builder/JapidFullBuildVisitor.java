@@ -1,7 +1,10 @@
 package org.playframework.playclipse.builder;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -62,7 +65,8 @@ public class JapidFullBuildVisitor implements IResourceVisitor {
 					jFile.create(is, true, null);
 					jFile.setDerived(true, null);
 				} else {
-					jFile.setContents(is, IFile.FORCE, null);
+//					jFile.setContents(is, IFile.FORCE, null);
+					jFile.setContents(is, 0, null); // don't use force seems safer in case of out of sync
 					jFile.setDerived(true, null);
 				}
 		}
@@ -73,8 +77,17 @@ public class JapidFullBuildVisitor implements IResourceVisitor {
 			String code = TemplateTransformer.generate(f);
 			return new ByteArrayInputStream(code.getBytes("UTF-8"));
 		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
+//			ByteArrayOutputStream out = new ByteArrayOutputStream();
+//			PrintStream ps = new PrintStream(out, true);
+//			e.printStackTrace(ps);
+			// put the compiling error in the generated file to get the attention.
+			String err = "~~Japid compiler generated message:\n~\n" + "Error in compiling file: " + f.getName() + ". The error message is:\n~\n" + e.getMessage();
+			err += "\n~\nPlease fix the error the template file and this file will be re-generated. ";
+			try {
+				return new ByteArrayInputStream(err.getBytes("UTF-8"));
+			} catch (UnsupportedEncodingException e1) {
+				throw new RuntimeException(err);
+			}
 		}
 	}
 
