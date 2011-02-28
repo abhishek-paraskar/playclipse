@@ -1,9 +1,7 @@
 package org.playframework.playclipse.builder;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 
 import org.eclipse.core.resources.IFile;
@@ -14,10 +12,10 @@ import org.eclipse.core.runtime.CoreException;
 import bran.japidplugin.TemplateTransformer;
 import cn.bran.japid.classmeta.AbstractTemplateClassMetaData;
 import cn.bran.japid.util.DirUtil;
+import cn.bran.japid.util.WebUtils;
 import cn.bran.play.JapidPlayAdapter;
 import cn.bran.play.JapidPlugin;
 import cn.bran.play.NoEnhance;
-import cn.bran.play.WebUtils;
 
 public class JapidFullBuildVisitor implements IResourceVisitor {
 	static {
@@ -28,7 +26,7 @@ public class JapidFullBuildVisitor implements IResourceVisitor {
 		AbstractTemplateClassMetaData.addImportStatic(JapidPlayAdapter.class);
 		AbstractTemplateClassMetaData.addImportStaticGlobal("play.data.validation.Validation");
 		AbstractTemplateClassMetaData.addImportStaticGlobal("play.templates.JavaExtensions");
-		AbstractTemplateClassMetaData.addImportStatic(WebUtils.class);
+//		AbstractTemplateClassMetaData.addImportStatic(WebUtils.class);
 		AbstractTemplateClassMetaData.addAnnotation(NoEnhance.class);
 		AbstractTemplateClassMetaData.addImportLineGlobal(JapidPlugin.JAPIDVIEWS_ROOT + "._layouts.*");
 		AbstractTemplateClassMetaData.addImportLineGlobal(JapidPlugin.JAPIDVIEWS_ROOT + "._javatags.*");
