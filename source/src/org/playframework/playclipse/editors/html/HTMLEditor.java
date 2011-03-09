@@ -2,10 +2,13 @@ package org.playframework.playclipse.editors.html;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.Position;
@@ -18,6 +21,7 @@ import org.eclipse.jface.text.source.projection.ProjectionAnnotationModel;
 import org.eclipse.jface.text.source.projection.ProjectionSupport;
 import org.eclipse.jface.text.source.projection.ProjectionViewer;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
 import org.playframework.playclipse.PlayPlugin;
 import org.playframework.playclipse.editors.PlayEditor;
@@ -33,15 +37,16 @@ public class HTMLEditor extends PlayEditor {
 	public static final String IMPORT = "import";
 	public static final String IMPORT_STATIC = "import_static";
 	private static final String EXPRESSION = "expression";
-	private static final String TAG2 = "tag";
+	private static final String PLAY_TAG = "tag";
 	private static final String STRING = "string";
 	private static final String HTML = "html";
 	private static final String DOCTYPE = "doctype";
 	private static final String DEFAULT = "default";
+	
 	public static final String DEFAULT_COLOR = "html_default_color";
 	public static final String DOCTYPE_COLOR = "html_doctype_color";
 	public static final String HTML_COLOR = "html_html_color";
-	public static final String TAG_COLOR = "html_tag_color";
+	public static final String HTML_TAG_COLOR = "html_tag_color";
 	public static final String EXPR_COLOR = "html_expr_color";
 	public static final String ACTION_COLOR = "html_action_color";
 	public static final String SKIPPED_COLOR = "html_skipped_color";
@@ -56,6 +61,7 @@ public class HTMLEditor extends PlayEditor {
 
 	// japid
 	public static final String JAVA_LINE = "japid_java_line";
+	public static final String CODE_BLOCK = "japid_code_block";
 
 	private ProjectionSupport projectionSupport;
 
@@ -69,7 +75,7 @@ public class HTMLEditor extends PlayEditor {
 
 	@Override
 	public String[] getTypes() {
-		return new String[] { DEFAULT, DOCTYPE, HTML, STRING, TAG2, EXPRESSION, ACTION2, COMMENT, KEYWORD, JAVA_LINE };
+		return new String[] { DEFAULT, DOCTYPE, HTML, STRING, PLAY_TAG, EXPRESSION, ACTION2, COMMENT, KEYWORD, JAVA_LINE , CODE_BLOCK};
 	}
 
 	@Override
@@ -83,8 +89,8 @@ public class HTMLEditor extends PlayEditor {
 		if (type.equals(STRING)) {
 			return STRING_COLOR;
 		}
-		if (type.equals(TAG2)) {
-			return TAG_COLOR;
+		if (type.equals(PLAY_TAG)) {
+			return HTML_TAG_COLOR;
 		}
 		if (type.equals(EXPRESSION)) {
 			return EXPR_COLOR;
@@ -101,6 +107,9 @@ public class HTMLEditor extends PlayEditor {
 		if (type.equals(JAVA_LINE)) {
 			return JAVA_LINE_COLOR;
 		}
+		if (type.equals(CODE_BLOCK)) {
+			return JAVA_LINE_COLOR;
+		}
 		return DEFAULT_COLOR;
 	}
 
@@ -108,6 +117,9 @@ public class HTMLEditor extends PlayEditor {
 
 	@Override
 	public String autoClose(char pc, char c, char nc) {
+//		if (c == '`') {
+//			return "`";
+//		}
 		if (c == '<') {
 			return ">";
 		}
@@ -153,9 +165,9 @@ public class HTMLEditor extends PlayEditor {
 	public void templates(String contentType, String ctx) {
 		if (contentType == DEFAULT || contentType == HTML || contentType == STRING) {
 			template("$", "Insert dynamic expression", "$${${}}${cursor}");
-			template(TAG2, "Insert tag without body", "#{${name} ${}/}${cursor}");
+			template(PLAY_TAG, "Insert tag without body", "#{${name} ${}/}${cursor}");
 			template(ACTION2, "Insert action", "@{${}}${cursor}");
-			template(TAG2, "Insert tag with body", "##{${name} ${}}${cursor}#{/${name}}");
+			template(PLAY_TAG, "Insert tag with body", "##{${name} ${}}${cursor}#{/${name}}");
 		}
 		if (contentType == DEFAULT) {
 			template("if", "Insert a #if tag", "#{if ${}}\n    ${cursor}\n#{/if}");
@@ -187,16 +199,16 @@ public class HTMLEditor extends PlayEditor {
 	static Pattern action_invoke4 = Pattern.compile("[^`]?`\\s*action\\s+([\\w\\d\\./]+)");
 	static Pattern action = Pattern.compile("@\\{([^}]+)\\}");
 	static Pattern action_in_tag = Pattern.compile("#\\{.+(@.+[)])");
-	static Pattern tag = Pattern.compile("#\\{([-a-zA-Z0-9\\./_]+)");
-	static Pattern tag2 = Pattern.compile("[^`]*`tag\\s+([\\w\\d\\./]+)");
-	static Pattern tag3 = Pattern.compile("[^`]*`t\\s+([\\w\\d\\./]+)");
+	static Pattern playTag = Pattern.compile("#\\{([-a-zA-Z0-9\\./_]+)");
+	static Pattern japidTag = Pattern.compile("[^`]*`tag\\s+([\\w\\d\\./]+)");
+	static Pattern japidTagShort = Pattern.compile("[^`]*`t\\s+([\\w\\d\\./]+)");
 
 	@Override
 	public IHyperlink detectHyperlink(ITextViewer textViewer, IRegion region) {
 		BestMatch match = findBestMatch(region.getOffset(),
 				include, action_invoke, extend_s, extends_japid, extends_japid2, extends_japid3,
-				action, action_in_tag, tag, action_invoke2, action_invoke3, action_invoke4, import_line, import_static,
-				tag2, tag3
+				action, action_in_tag, playTag, action_invoke2, action_invoke3, action_invoke4, import_line, import_static,
+				japidTag, japidTagShort
 				);
 		if (match != null) {
 			// System.out.println(match.text());
@@ -215,9 +227,9 @@ public class HTMLEditor extends PlayEditor {
 			if (match.is(action_invoke4)) {
 				return match.hyperlink(ACTION2, match.matcher.start(1) - match.matcher.start(), 0);
 			}
-			if (match.is(tag)) {
+			if (match.is(playTag)) {
 				if (!match.text().equals("invoke") && !match.text().equals("Each"))
-					return match.hyperlink(TAG2, 2, 0);
+					return match.hyperlink(PLAY_TAG, 2, 0);
 			}
 			if (match.is(extend_s)) {
 				return match.hyperlink(EXTENDS, match.matcher.start(1) - match.matcher.start(), -1);
@@ -243,11 +255,11 @@ public class HTMLEditor extends PlayEditor {
 			if (match.is(import_static)) {
 				return match.hyperlink(IMPORT_STATIC, match.matcher.start(1) - match.matcher.start(), 0);
 			}
-			if (match.is(tag2)) {
-				return match.hyperlink(TAG2, match.matcher.start(1) - match.matcher.start(), 0);
+			if (match.is(japidTag)) {
+				return match.hyperlink(PLAY_TAG, match.matcher.start(1) - match.matcher.start(), 0);
 			}
-			if (match.is(tag3)) {
-				return match.hyperlink(TAG2, match.matcher.start(1) - match.matcher.start(), 0);
+			if (match.is(japidTagShort)) {
+				return match.hyperlink(PLAY_TAG, match.matcher.start(1) - match.matcher.start(), 0);
 			}
 		}
 		return null;
@@ -259,6 +271,7 @@ public class HTMLEditor extends PlayEditor {
 	char openedString = ' ';
 	String oldState = DEFAULT;
 	String oldStringState = DEFAULT;
+	private int offsetInJavaLine;
 
 	@Override
 	protected void reset() {
@@ -281,7 +294,15 @@ public class HTMLEditor extends PlayEditor {
 		if (state == DEFAULT || state == HTML || state == STRING) {
 			if (isNext("#{")) {
 				saveState();
-				return found(TAG2, 0);
+				return found(PLAY_TAG, 0);
+			}
+			if (isNext("%{")) {
+				saveState();
+				return found(CODE_BLOCK, 0);
+			}
+			if (isNext("~[")) {
+				saveState();
+				return found(CODE_BLOCK, 0);
 			}
 			if (isNext("${")) {
 				saveState();
@@ -292,7 +313,8 @@ public class HTMLEditor extends PlayEditor {
 				return found(ACTION2, 0);
 			}
 			if (isNext("``")) {
-				return found(oldState, 2);
+//				return found(oldState, 2);
+				return found(state, 2);
 			}
 			if (isNext("`") && !isNext("``")) {
 				saveState();
@@ -311,12 +333,24 @@ public class HTMLEditor extends PlayEditor {
 		}
 
 		if (state == JAVA_LINE) {
+			offsetInJavaLine++;
 			if (isNext("\n")) {
+				offsetInJavaLine = 0;
 				return found(oldState, 1);
 			}
+			else if (isNext("`")) {
+				if (offsetInJavaLine > 1) {
+					offsetInJavaLine = 0;
+					return found(oldState, 1);
+				}
+			}
 		}
-
-		if (state == TAG2 || state == EXPRESSION || state == ACTION2) {
+		if (state == CODE_BLOCK) {
+			if (isNext("}%") || isNext("]~")) {
+				return found(oldState, 2);
+			}
+		}
+		if (state == PLAY_TAG || state == EXPRESSION || state == ACTION2) {
 			if (isNext("}")) {
 				return found(oldState, 1);
 			}
@@ -470,6 +504,43 @@ public class HTMLEditor extends PlayEditor {
 			useSoftTabs = ((Boolean) event.getNewValue()).booleanValue();
 		}
 		super.propertyChange(event);
+	}
+
+	/**
+	 * @return
+	 */
+	public static Map<String, String> setupHtmlEditorPrefFields() {
+		Map<String, String> fields = new LinkedHashMap<String, String>();
+		fields.put(DEFAULT_COLOR, "Default Color");
+		fields.put(STRING_COLOR, "String Color");
+		fields.put(ACTION_COLOR, "Action Color");
+		fields.put(DOCTYPE_COLOR, "Doctype Color");
+		fields.put(EXPR_COLOR, "Expr Color");
+		fields.put(HTML_COLOR, "HTML Color");
+		fields.put(KEYWORD_COLOR, "Keyword Color");
+		fields.put(SKIPPED_COLOR, "Skipped Color");
+		fields.put(HTML_TAG_COLOR, "Tag Color");
+		fields.put(JAVA_LINE_COLOR, "Java Code Color");
+		return fields;
+	}
+
+	/**
+	 * @param store
+	 */
+	public static void initHtmlEditorPrefStore(IPreferenceStore store) {
+		PreferenceConverter.setDefault(store, ACTION_COLOR, new RGB(255, 0, 192));
+		PreferenceConverter.setDefault(store, DEFAULT_COLOR, new RGB(0, 0, 0));
+		PreferenceConverter.setDefault(store, DOCTYPE_COLOR, new RGB(127, 127, 127));
+		PreferenceConverter.setDefault(store, EXPR_COLOR, new RGB(255, 144, 0));
+		PreferenceConverter.setDefault(store, HTML_COLOR, new RGB(0, 0, 0));
+		PreferenceConverter.setDefault(store, KEYWORD_COLOR, new RGB(0, 0, 0));
+		PreferenceConverter.setDefault(store, SKIPPED_COLOR, new RGB(90, 90, 90));
+		PreferenceConverter.setDefault(store, HTML_TAG_COLOR, new RGB(129, 0, 153));
+		PreferenceConverter.setDefault(store, STRING_COLOR, new RGB(5, 152, 220));
+		PreferenceConverter.setDefault(store, JAVA_LINE_COLOR, new RGB(33, 33, 180));
+		store.setDefault(MISSING_ACTION, "error");
+		store.setDefault(SOFT_TABS, false);
+		store.setDefault(SOFT_TABS_WIDTH, 4);
 	}
 
 }

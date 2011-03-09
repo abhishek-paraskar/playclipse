@@ -83,3 +83,6 @@ History:
 	2. put whatever error message during the code transform in the generated Java code to get the attention. 
 2011/2/28, version 0.8.7
 	1. Updated to match Japid 0.7.1
+2011/3/9, version 0.8.8
+    1. Updated to match Japid 0.8.0
+	2. added preference configuration for Java code block

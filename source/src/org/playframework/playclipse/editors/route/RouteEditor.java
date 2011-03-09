@@ -4,10 +4,12 @@ import java.util.regex.Pattern;
 
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.hyperlink.IHyperlink;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.swt.graphics.RGB;
 import org.playframework.playclipse.ModelInspector;
 import org.playframework.playclipse.PlayPlugin;
 import org.playframework.playclipse.editors.PlayEditor;
@@ -148,6 +150,20 @@ public class RouteEditor extends PlayEditor {
 
 	@Override
 	public void templates(String contentType, String ctx) {
+	}
+
+	/**
+	 * @param store
+	 */
+	public static void initRoutePrefStore(IPreferenceStore store) {
+		PreferenceConverter.setDefault(store, ACTION_COLOR, new RGB(200, 0, 0));
+		PreferenceConverter.setDefault(store, KEYWORD_COLOR, new RGB(0, 200, 0));
+		PreferenceConverter.setDefault(store, URL_COLOR, new RGB(0, 0, 200));
+		PreferenceConverter.setDefault(store, COMMENT_COLOR, new RGB(90, 90, 90));
+		PreferenceConverter.setDefault(store, DEFAULT_COLOR, new RGB(0, 0, 0));
+		store.setDefault(MISSING_ROUTE, "error");
+		store.setDefault(SOFT_TABS, false);
+		store.setDefault(SOFT_TABS_WIDTH, 4);
 	}
 
 }

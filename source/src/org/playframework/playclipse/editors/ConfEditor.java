@@ -1,10 +1,12 @@
 package org.playframework.playclipse.editors;
 
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.hyperlink.IHyperlink;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.swt.graphics.RGB;
 import org.playframework.playclipse.PlayPlugin;
 
 public class ConfEditor extends PlayEditor {
@@ -108,6 +110,17 @@ public class ConfEditor extends PlayEditor {
 
 	@Override
 	public void templates(String contentType, String ctx) {
+	}
+
+	/**
+	 * @param store
+	 */
+	public static void initConfPrefStore(IPreferenceStore store) {
+		PreferenceConverter.setDefault(store, COMMENT_COLOR, new RGB(90, 90, 90));
+		PreferenceConverter.setDefault(store, KEY_COLOR, new RGB(150, 0, 0));
+		PreferenceConverter.setDefault(store, DEFAULT_COLOR, new RGB(0, 0, 0));
+		store.setDefault(SOFT_TABS, false);
+		store.setDefault(SOFT_TABS_WIDTH, 4);
 	}
 
 }

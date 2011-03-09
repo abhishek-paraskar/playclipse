@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Playclipse
 Bundle-SymbolicName: org.playframework.playclipse; singleton:=true
-Bundle-Version: 0.8.7
+Bundle-Version: 0.8.8
 Bundle-Activator: org.playframework.playclipse.PlayPlugin
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
@@ -25,5 +25,5 @@ Bundle-ActivationPolicy: lazy
 Bundle-Vendor: Bing Ran and Playclipse Original Author
 Bundle-ClassPath: .,
  lib/javaparser-1.0.8.jar,
- lib/japid-0.7.1.jar,
- lib/play-japid-0.7.1.jar
+ lib/japid-0.8.0.jar,
+ lib/japidplay-0.8.0.jar

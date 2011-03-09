@@ -34,7 +34,6 @@ import org.playframework.playclipse.PlayPlugin;
 
 public abstract class Editor extends TextEditor implements VerifyListener, IPropertyChangeListener {
 
-	ColorManager colorManager = new ColorManager();
 	DocumentProvider documentProvider;
 	EditorHelper helper;
 
@@ -51,7 +50,6 @@ public abstract class Editor extends TextEditor implements VerifyListener, IProp
 
 	@Override
 	public void dispose() {
-		colorManager.dispose();
 		PlayPlugin.getDefault().getPreferenceStore().removePropertyChangeListener(this);
 		super.dispose();
 	}
@@ -324,9 +322,9 @@ public abstract class Editor extends TextEditor implements VerifyListener, IProp
 			int left = len - end;
 			if (left == 0) {
 				end++;
-				found("default", 0);
+				String lastState = found("default", 0);
 				eof = true;
-				return new TypedRegion(begin2, end2-begin2, "default");
+				return new TypedRegion(begin2, end2-begin2, lastState);
 			}
 
 			end++;

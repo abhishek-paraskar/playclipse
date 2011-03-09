@@ -12,7 +12,6 @@ import org.eclipse.core.runtime.CoreException;
 import bran.japidplugin.TemplateTransformer;
 import cn.bran.japid.classmeta.AbstractTemplateClassMetaData;
 import cn.bran.japid.util.DirUtil;
-import cn.bran.japid.util.WebUtils;
 import cn.bran.play.JapidPlayAdapter;
 import cn.bran.play.JapidPlugin;
 import cn.bran.play.NoEnhance;
@@ -79,8 +78,8 @@ public class JapidFullBuildVisitor implements IResourceVisitor {
 //			PrintStream ps = new PrintStream(out, true);
 //			e.printStackTrace(ps);
 			// put the compiling error in the generated file to get the attention.
-			String err = "~~Japid compiler generated message:\n~\n" + "Error in compiling file: " + f.getName() + ". The error message is:\n~\n" + e.getMessage();
-			err += "\n~\nPlease fix the error the template file and this file will be re-generated. ";
+			String err = "XXX//~~Japid compiler generated message:\n\n//Error in compiling file: " + f.getName() + ". The error message is:\n\n//" + e.getMessage();
+			err += "\n\n//Please fix the error in the template file. This file will be re-generated. ";
 			try {
 				return new ByteArrayInputStream(err.getBytes("UTF-8"));
 			} catch (UnsupportedEncodingException e1) {
