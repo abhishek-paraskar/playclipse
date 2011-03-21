@@ -174,6 +174,12 @@ public final class Navigation {
 	}
 
 	private void openOrCreate(IFile file) {
+		try {
+			file.getParent().refreshLocal(IResource.DEPTH_INFINITE, null);
+		} catch (CoreException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		if (file.exists()) {
 			try {
 				FilesAccess.openFile(file);

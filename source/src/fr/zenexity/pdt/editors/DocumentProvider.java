@@ -28,7 +28,12 @@ public class DocumentProvider extends FileDocumentProvider {
 
 	@Override
 	protected IDocument createDocument(Object element) throws CoreException {
-		document = super.createDocument(element);
+		try {
+			document = super.createDocument(element);
+		} catch (Exception e) {
+			System.out.println(this.getClass().getName() + ": " + e.getMessage());
+		}
+		
 		if (document != null) {
 			IDocumentPartitioner partitioner = new IDocumentPartitioner() {
 

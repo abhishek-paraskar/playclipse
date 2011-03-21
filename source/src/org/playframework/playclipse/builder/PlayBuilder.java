@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -60,6 +61,8 @@ public class PlayBuilder extends IncrementalProjectBuilder implements IPropertyC
 
 	@Override
 	protected IProject[] build(int kind, @SuppressWarnings("rawtypes") Map args, IProgressMonitor monitor) throws CoreException {
+//		refreshJapidviews(monitor);
+		
 		IResourceDelta delta = getDelta(getProject());
 		switch (kind) {
 		case FULL_BUILD:
@@ -95,11 +98,34 @@ public class PlayBuilder extends IncrementalProjectBuilder implements IPropertyC
 		try {
 			ensureJapidViewsDir();
 			delta.accept(new JapidDeltaVisitor());
+			refreshJapidviews(monitor);
 			checkRoute();
 		} catch (CoreException e) {
 			PlayPlugin.showError(e);
 		}
 	}
+
+
+
+	/**
+	 * @param monitor
+	 * @throws CoreException
+	 */
+	private void refreshJapidviews(IProgressMonitor monitor) throws CoreException {
+		IFolder folder = getProject().getFolder("app/japidviews");
+		if (folder.exists() ) {
+			folder.refreshLocal(IFolder.DEPTH_INFINITE, monitor);
+		}
+		else {
+			PlayPlugin.showError("app/japidviews folder does not exist.");
+		}
+	}
+
+	private void log(String string) {
+		System.out.println("PlayBuilder. " + string);
+	}
+
+
 
 	private void ensureJapidViewsDir() {
 		IProject proj = getProject();
@@ -218,5 +244,10 @@ public class PlayBuilder extends IncrementalProjectBuilder implements IPropertyC
 		}
 	}
 
+	public static void packageRenamingRefactor(Renaming renaming) {
+		packageRenaming = renaming;
+	}
+
+	static Renaming packageRenaming = null;
 	
 }

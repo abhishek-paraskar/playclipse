@@ -42,6 +42,7 @@ public class JapidFullBuildCollector implements IResourceVisitor {
 				try {
 					JapidFullBuildVisitor.convertTemplate(f);
 				} catch (CoreException e) {
+					e.printStackTrace();
 					PlayPlugin.showError(e);
 				}
 				mon.worked(counter++);

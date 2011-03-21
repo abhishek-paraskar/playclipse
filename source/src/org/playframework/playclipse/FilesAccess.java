@@ -28,8 +28,10 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.viewers.ISelection;
@@ -132,6 +134,12 @@ public class FilesAccess {
 
 	public static void prepareFolder(IFolder folder) {
 		IContainer parent = folder.getParent();
+		try {
+			parent.refreshLocal(IResource.DEPTH_INFINITE, null);
+		} catch (CoreException e1) {
+			e1.printStackTrace();
+		}
+
 		if (parent instanceof IFolder) {
 			prepareFolder((IFolder) parent);
 		}
@@ -214,6 +222,14 @@ public class FilesAccess {
 				Object element = it.next();
 				if (element instanceof IProject) {
 					project = (IProject) element;
+				} else if (element instanceof IJavaElement) {
+					IJavaElement res = (IJavaElement) element;
+					project = res.getJavaProject().getProject();
+					break;
+				} else if (element instanceof IResource) {
+					IResource res = (IResource) element;
+					project = res.getProject();
+					break;
 				} else if (element instanceof IAdaptable) {
 					project = (IProject) ((IAdaptable) element).getAdapter(IProject.class);
 				}

@@ -17,6 +17,7 @@ public class JapidCleanVisitor implements IResourceVisitor {
 				&& "java".equals(f.getFileExtension())
 				&& !filePath.contains("_javatags");
 			if (isTemplateJava) {
+				System.out.println("cleanvisitor: delete: " + f.getFullPath());
 				f.delete(true, null);
 			}
 		}

@@ -90,6 +90,16 @@
             id="Playclipse.gotoDerivedView"
             name="Go to derived Java file">
       </command>
+      <command
+            defaultHandler="org.playframework.playclipse.handlers.JapidRegenHandler"
+            id="Playclipse.JapidRegen"
+            name="Regen japid derivatives">
+      </command>
+      <command
+            defaultHandler="org.playframework.playclipse.handlers.OpenWithBrowserHandler"
+            id="Playclipse.OpenActionWithBrowser"
+            name="Open Action with Browser">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
@@ -160,6 +170,12 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+SHIFT+M">
       </key>
+      <key
+            commandId="Playclipse.OpenActionWithBrowser"
+            contextId="org.eclipse.ui.contexts.window"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+ALT+B">
+      </key>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -217,6 +233,11 @@
                   commandId="org.playframework.playclipse.commands.tests"
                   id="org.playframework.playclipse.menus.testCommand"
                   mnemonic="t">
+            </command>
+            <command
+                  commandId="Playclipse.JapidRegen"
+                  label="Regenerate Japid Template Classes"
+                  style="push">
             </command>
          </menu>
       </menuContribution>
@@ -410,6 +431,11 @@
                   </iterate>
                </visibleWhen>
             </command>
+            <command
+                  commandId="Playclipse.JapidRegen"
+                  label="Regenerate Japid Template Classes"
+                  style="push">
+            </command>
          </menu>
       </menuContribution>
             <menuContribution
@@ -579,6 +605,11 @@
                         </iterate>
                      </visibleWhen>
                   </command>
+                  <command
+                        commandId="Playclipse.JapidRegen"
+                        label="Regenerate Japid Template Classes"
+                        style="push">
+                  </command>
                </menu>
             </menuContribution>
             <menuContribution
@@ -588,6 +619,11 @@
                   <command
                         commandId="org.playframework.playclipse.commands.goToViewCommand"
                         label="Go to view"
+                        style="push">
+                  </command>
+                  <command
+                        commandId="Playclipse.OpenActionWithBrowser"
+                        label="Open Action in Browser"
                         style="push">
                   </command>
                </menu>
@@ -760,4 +796,21 @@
        </variable>
     </sourceProvider>
  </extension>
+    <extension point="org.eclipse.ltk.core.refactoring.renameParticipants">
+      <renameParticipant
+        id="bran.japidplugin.JapidControllerRenameParticipant"
+        name="Rename participant for japid template files"
+        class="bran.japidplugin.JapidControllerRenameParticipant">
+        <enablement>
+          <with variable="affectedNatures">
+            <iterate operator="or">
+              <equals value="org.playframework.playclipse.playNature"/>
+            </iterate>
+          </with>
+          <with variable="element">
+              <instanceof value="org.eclipse.jdt.core.IJavaElement"/>
+          </with>
+        </enablement>
+      </renameParticipant>
+    </extension>
 </plugin>

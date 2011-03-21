@@ -21,20 +21,14 @@ package org.playframework.playclipse;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import org.eclipse.jface.action.IStatusLineManager;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.IActionBars;
-import org.eclipse.ui.IViewSite;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.IWorkbenchPartSite;
-import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+
+import bran.japidplugin.JavaElementChangeListner;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -57,6 +51,8 @@ public class PlayPlugin extends AbstractUIPlugin {
 	 * The constructor
 	 */
 	public PlayPlugin() {
+		// bran for a play
+//		JavaCore.addElementChangedListener(new JavaElementChangeListner());
 	}
 
 	@Override
@@ -114,7 +110,13 @@ public class PlayPlugin extends AbstractUIPlugin {
 	}
 
 	public static void showError(String e) {
-		MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "JapidPlayclipse", e);
+		System.out.println("PlayPlugin: error: " + e);
+		try {
+			MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "JapidPlayclipse", e);
+		}
+		catch(Exception ex) {
+			
+		}
 	}
 
 	public static void showInfo(String e) {

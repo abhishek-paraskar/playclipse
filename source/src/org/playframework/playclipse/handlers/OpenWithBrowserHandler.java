@@ -18,6 +18,10 @@
 
 package org.playframework.playclipse.handlers;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -29,73 +33,41 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IPackageDeclaration;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.ITypeHierarchy;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
-import org.playframework.playclipse.FilesAccess;
-import org.playframework.playclipse.Navigation;
 import org.playframework.playclipse.PlayPlugin;
 
-import cn.bran.japid.util.DirUtil;
 import fr.zenexity.pdt.editors.EditorHelper;
 
 /**
- * Go to the view (template) corresponding to the current action
+ * open the action based on the {controller}/{action} catch all routing. 
+ * 
+ * TODO: need to do reverse routing and get the right URL 
  */
-public class GoToViewHandler extends AbstractHandler {
-	static Pattern stringPattern = Pattern.compile("\"(.*)\"");
-	static Pattern methodNamePattern = Pattern.compile("\\w+\\s*\\(");
-	static Pattern renderJapidPattern = Pattern.compile("renderJapid\\s*\\(");
-	static Pattern renderJapidWithPattern = Pattern.compile("renderJapidWith\\s*\\(\\s*\"(.*)\"");
+public class OpenWithBrowserHandler extends AbstractHandler {
 	private IWorkbenchWindow window;
+	static Pattern portlinePattern = Pattern.compile("http\\.port\\s*=\\s*(\\d*)\\s*");
 
-	/**
-	 * The constructor.
-	 */
-	public GoToViewHandler() {
+	public OpenWithBrowserHandler() {
 	}
 
-//	@SuppressWarnings("restriction")
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		window = HandlerUtil.getActiveWorkbenchWindowChecked(event);
 		EditorHelper editor = EditorHelper.getCurrent(event);
 		IProject project = editor.getProject();
-		IJavaProject jProject = JavaCore.create(project);
 		
-		if(editor != null) {
-			String relativePath = ((IFileEditorInput) editor.textEditor.getEditorInput()).getFile().getProjectRelativePath().toString();
-			if (relativePath.startsWith("app/japidviews/") && relativePath.endsWith(".java")) {
-				// bran: if we are in the japid derived Java template code, let's switch back to the html view
-				String jFile = DirUtil.mapJavaToSrc(relativePath);
-				IFile f = project.getFile(jFile);
-				try {
-					FilesAccess.openFile(f);
-				} catch (CoreException e) {
-					PlayPlugin.showError(e);
-				}
-				return null;		
-			}
-		}
-		
-		boolean useJapid = true;
-
-		String line;
 		String viewName = null;
 		String title = editor.getTitle();
 		String controllerName = title.replace(".java", "");
@@ -121,29 +93,18 @@ public class GoToViewHandler extends AbstractHandler {
 					}
 				}
 				
-				// get the class declaration line
-				IType type = unit.getType(controllerName);
-				ITypeHierarchy superTypes = type.newSupertypeHierarchy(null);
-//				String name = JapidController.class.getName(); // this will require play.jar
-				String name = "cn.bran.play.JapidController";
-				IType japidController = jProject.findType(name);
-				if (superTypes.contains(japidController)) {
-					useJapid = true;
-				}
-				else {
-					useJapid = false;
-				}
-				
-//				String superclassName = type.getSuperclassName();
-//				if (superclassName.toLowerCase().contains("japid")) {
-//					useJapid = true;
-//				}
-				
+//				// get the class declaration line
+//				IType type = unit.getType(controllerName);
+//				ITypeHierarchy superTypes = type.newSupertypeHierarchy(null);
+////				String name = JapidController.class.getName(); // this will require play.jar
+//				String name = "cn.bran.play.JapidController";
+//				IType japidController = jProject.findType(name);
+//				
 				// current selected elem
 			      IJavaElement[] elements= unit.codeSelect(selection.getOffset(), selection.getLength());
 			      if (elements.length > 0) {
 			    	  // TODO extract the current selection to tell if the cursor in on renderJapidXXX line
-			    	  System.out.println(elements);
+//			    	  System.out.println(elements);
 			      }
 
 			} catch (JavaModelException e) {
@@ -154,36 +115,6 @@ public class GoToViewHandler extends AbstractHandler {
 		}
 
 		viewName = getEnclosingActionName(selection, unit);
-
-		int lineNo = editor.getCurrentLineNo();
-		line = editor.getLine(lineNo);
-		if (line.contains("render")) {
-			if (!line.contains("renderJapid")) {
-				Pattern pt = Pattern.compile("\"(.*)\"");
-				Matcher m = pt.matcher(line);
-				if (m.find()) {
-					// render classic groovy
-					useJapid = false;
-					// There is a custom view, by renderTemplate()
-					viewName = "app/views/" + m.group().replace("\"", "");
-				}
-			} else {
-				// render japid
-				useJapid = true;
-				if(line.contains("renderJapidWith")) {
-					// explicit template name
-					Matcher m = stringPattern.matcher(line);
-					if (m.find()) {
-						// There is a custom view
-						// the template strin is the view name in relative to the japidviews directory
-						viewName = "app/japidviews/" + m.group().replace("\"", "");
-					}
-					else {
-						System.out.println("the first param of renderJapidWith is not a String. Strange....");
-					}
-				}
-			}
-		}
 		
 		if (viewName == null) {
 			String string = "Use this command in a controller action body, or on a render...() line";
@@ -191,12 +122,39 @@ public class GoToViewHandler extends AbstractHandler {
 		} else {
 			if (!viewName.startsWith("app")) {
 				
-				viewName = "app/" + (useJapid? "japidviews" : "views") + "/" 
-					+ (packageName.equals("controllers") ? "" : packageName.substring(12).replace('.', '/') + "/")
-					+ controllerName + "/" + viewName + ".html";
+				viewName = (packageName.equals("controllers") ? "" : packageName.substring(12) + "." )  + controllerName + "/" + viewName;
+				// let's parsing the application.conf
+				IFile confFile = project.getFile("conf/application.conf");
+				InputStream contents = null;
+				try {
+					String portpart = "9000";
+					contents =  confFile.getContents();
+					BufferedReader br = new BufferedReader(new InputStreamReader(contents, "UTF-8"));
+					String line = "";
+					
+					while ((line = br.readLine()) != null) {
+						line = line.trim();
+						if (!line.startsWith("#")) {
+							Matcher matcher = portlinePattern.matcher(line);
+							if (matcher.matches()) {
+								portpart = matcher.group(1);
+								break;
+								// open the browser
+							}
+						}
+					}
+					PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(new URL("http://localhost:" + portpart + "/" + viewName));
+				} catch (Exception e) {
+					e.printStackTrace();
+					return null;
+				}
+				finally {
+					try {
+						contents.close();
+					}
+					catch (Exception ee) {}
+				}
 			}
-			
-			(new Navigation(editor)).goToViewAbs(viewName);
 		}
 		return null;
 	}
@@ -216,7 +174,7 @@ public class GoToViewHandler extends AbstractHandler {
 					IMethod sm = (IMethod)el;
 					int flags = sm.getFlags();
 					String actionMethodName = el.getElementName();
-					if (/*Flags.isPublic(flags) &&*/ Flags.isStatic(flags)) {
+					if (Flags.isPublic(flags) && Flags.isStatic(flags)) {
 						return actionMethodName;
 					}
 					else {
