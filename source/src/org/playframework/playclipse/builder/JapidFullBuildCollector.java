@@ -10,6 +10,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.playframework.playclipse.PlayPlugin;
 
+import bran.japidplugin.TemplateTransformer;
+
 /**
  * Collect all html templates and generate java source from them in a batch
  * 
@@ -18,7 +20,7 @@ import org.playframework.playclipse.PlayPlugin;
  */
 public class JapidFullBuildCollector implements IResourceVisitor {
 	static {
-		JapidFullBuildVisitor.initTemplateCLassMeta();
+		TemplateTransformer.initTemplateCLassMeta();
 	}
 
 	List<IFile> allFiles = new ArrayList<IFile>();

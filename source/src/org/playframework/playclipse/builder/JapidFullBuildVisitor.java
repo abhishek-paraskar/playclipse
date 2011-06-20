@@ -11,32 +11,11 @@ import org.eclipse.core.resources.ResourceAttributes;
 import org.eclipse.core.runtime.CoreException;
 
 import bran.japidplugin.TemplateTransformer;
-import cn.bran.japid.classmeta.AbstractTemplateClassMetaData;
 import cn.bran.japid.util.DirUtil;
-import cn.bran.play.JapidPlayAdapter;
-import cn.bran.play.JapidPlugin;
 
 public class JapidFullBuildVisitor implements IResourceVisitor {
 	static {
-		initTemplateCLassMeta();
-	}
-
-	public static void initTemplateCLassMeta() {
-		AbstractTemplateClassMetaData.addImportStatic(JapidPlayAdapter.class);
-		AbstractTemplateClassMetaData.addImportStaticGlobal("play.data.validation.Validation");
-		AbstractTemplateClassMetaData.addImportStaticGlobal("play.templates.JavaExtensions");
-		// AbstractTemplateClassMetaData.addImportStatic(WebUtils.class);
-		// AbstractTemplateClassMetaData.addAnnotation(NoEnhance.class);
-		AbstractTemplateClassMetaData.addImportLineGlobal(JapidPlugin.JAPIDVIEWS_ROOT + "._layouts.*");
-		AbstractTemplateClassMetaData.addImportLineGlobal(JapidPlugin.JAPIDVIEWS_ROOT + "._javatags.*");
-		AbstractTemplateClassMetaData.addImportLineGlobal(JapidPlugin.JAPIDVIEWS_ROOT + "._tags.*");
-		AbstractTemplateClassMetaData.addImportLineGlobal("play.mvc.Scope.*");
-		AbstractTemplateClassMetaData.addImportLineGlobal("play.mvc.Http.*");
-		AbstractTemplateClassMetaData.addImportLineGlobal("play.data.validation.Validation");
-		AbstractTemplateClassMetaData.addImportLineGlobal("play.data.validation.Error");
-		AbstractTemplateClassMetaData.addImportLineGlobal("models.*");
-		AbstractTemplateClassMetaData.addImportLineGlobal("controllers.*");
-		AbstractTemplateClassMetaData.addImportLineGlobal("static  japidviews._javatags.JapidWebUtil.*");
+		TemplateTransformer.initTemplateCLassMeta();
 	}
 
 	@Override

@@ -13,10 +13,10 @@ public class HTMLEditorTest {
 	public void testImportLineRegex() {
 		String l1 = "`import my.pack.Model";
 		String l2 = "`import my.pack.Model;";
-		String l3 = "`import my.pack.*";
-		String l4 = "`import my.pack.*;";
+		String l3 = "@import my.pack.*";
+		String l4 = "@import my.pack.*;";
 		
-		Pattern p = Pattern.compile("[^`]?`\\s*import\\s+([a-zA-Z0-9\\._]+)[\\s;]?");
+		Pattern p = Pattern.compile("[^`@]?[`@]\\s*import\\s+([a-zA-Z0-9\\._]+)[\\s;]?");
 		
 		Matcher matcher = p.matcher(l1);
 		assertTrue(matcher.find());
@@ -65,13 +65,13 @@ public class HTMLEditorTest {
 	 */
 	@Test
 	public void testTagCommand() {
-		Pattern p = Pattern.compile("[^`]*`(tag|t)\\s+([\\w\\d\\./]+)\\s+.*");
+		Pattern p = Pattern.compile("[^`@]*[`@](tag|t)\\s+([\\w\\d\\./]+)\\s+.*");
 		String line = "xx `tag my.Tag a b" ;
 		Matcher matcher = p.matcher(line);
 		assertTrue(matcher.matches());
 		assertEquals("my.Tag", matcher.group(2));
 
-		line = "xx `t my.Tag a b" ;
+		line = "xx @t my.Tag a b" ;
 		matcher = p.matcher(line);
 		assertTrue(matcher.matches());
 		assertEquals("my.Tag", matcher.group(2));

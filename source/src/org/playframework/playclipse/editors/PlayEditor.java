@@ -96,7 +96,7 @@ public abstract class PlayEditor extends Editor {
 						InputStream contents = curfile.getContents();
 						BufferedReader reader = new BufferedReader(new InputStreamReader(contents));
 						String line = "";// reader.readLine();
-						Pattern p = Pattern.compile("\\s*`\\s*import\\s*(controllers\\.[^;]*)");
+						Pattern p = Pattern.compile("\\s*[`@]\\s*import\\s*(controllers\\.[^;]*)");
 						while ((line = reader.readLine()) != null) {
 							Matcher matcher = p.matcher(line);
 							if (matcher.find()) {

@@ -7,11 +7,13 @@ import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 
+import bran.japidplugin.TemplateTransformer;
+
 import cn.bran.japid.util.DirUtil;
 
 public class JapidDeltaVisitor implements IResourceDeltaVisitor {
 	static {
-		JapidFullBuildVisitor.initTemplateCLassMeta();
+		TemplateTransformer.initTemplateCLassMeta();
 	}
 
 	@Override
@@ -58,6 +60,7 @@ public class JapidDeltaVisitor implements IResourceDeltaVisitor {
 	 * @throws CoreException
 	 */
 	private void handleJapidviewsChange(IResourceDelta delta, IResource res) throws CoreException {
+		TemplateTransformer.resetImports(res.getProject());
 		switch (delta.getKind()) {
 		case IResourceDelta.REMOVED:
 			if (res instanceof IFile) {

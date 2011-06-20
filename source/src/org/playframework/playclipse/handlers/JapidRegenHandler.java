@@ -15,6 +15,8 @@ import org.playframework.playclipse.PlayPlugin;
 import org.playframework.playclipse.builder.JapidFullBuildCollector;
 import org.playframework.playclipse.builder.PlayNature;
 
+import bran.japidplugin.TemplateTransformer;
+
 import cn.bran.play.JapidPlugin;
 
 /**
@@ -69,6 +71,8 @@ public class JapidRegenHandler extends AbstractHandler {
 			try {
 				JapidFullBuildCollector batchCompiler = new JapidFullBuildCollector();
 				project.accept(batchCompiler);
+				// 
+				TemplateTransformer.resetImports(project);
 				batchCompiler.build(dummyPM);
 			} catch (CoreException e) {
 				PlayPlugin.showError(e);

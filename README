@@ -86,3 +86,5 @@ History:
 2011/3/9, version 0.8.8
     1. Updated to match Japid 0.8.0
 	2. added preference configuration for Java code block
+2011/6/20, version 0.8.8.17
+	1. updated to the latest Japid 0.8.8. Suppoted tavatags auto scanning

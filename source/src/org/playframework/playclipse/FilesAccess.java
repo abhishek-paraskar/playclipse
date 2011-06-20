@@ -237,4 +237,12 @@ public class FilesAccess {
 		}
 		return project;
 	}
+	
+	public static IFolder getJavaTagsFolder(IProject proj) {
+		IFolder folder = proj.getFolder("app/japidviews/_javatags");
+		if (folder.exists())
+			return folder;
+		else 
+			return null;
+	}
 }

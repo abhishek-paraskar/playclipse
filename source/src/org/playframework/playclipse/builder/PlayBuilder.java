@@ -22,6 +22,8 @@ import org.playframework.playclipse.PlayPlugin;
 import org.playframework.playclipse.editors.html.HTMLEditor;
 import org.playframework.playclipse.editors.route.RouteEditor;
 
+import bran.japidplugin.TemplateTransformer;
+
 public class PlayBuilder extends IncrementalProjectBuilder implements IPropertyChangeListener {
 
 	public PlayBuilder() {
@@ -133,14 +135,15 @@ public class PlayBuilder extends IncrementalProjectBuilder implements IPropertyC
 		FilesAccess.prepareFolder(proj.getFolder("app/japidviews/_tags"));
 		FilesAccess.prepareFolder(proj.getFolder("app/japidviews/_javatags"));
 		FilesAccess.prepareFolder(proj.getFolder("app/japidviews/_notifiers"));
-		IFile file = proj.getFile("app/japidviews/_javatags/JapidWebUtil.java");
-		if (!file.exists()) {
-			try {
-				file.create(new ByteArrayInputStream(JAPID_WEB_UTIL.getBytes("UTF-8")), true, null);
-			} catch (Exception e) {
-				PlayPlugin.showError(e);
-			}
-		}
+		IFile file = null;
+//		file = proj.getFile("app/japidviews/_javatags/JapidWebUtil.java");
+//		if (!file.exists()) {
+//			try {
+//				file.create(new ByteArrayInputStream(JAPID_WEB_UTIL.getBytes("UTF-8")), true, null);
+//			} catch (Exception e) {
+//				PlayPlugin.showError(e);
+//			}
+//		}
 
 		file = proj.getFile("app/japidviews/_layouts/SampleLayout.html");
 		if (!file.exists()) {
@@ -204,6 +207,7 @@ public class PlayBuilder extends IncrementalProjectBuilder implements IPropertyC
 
 	protected void fullBuild(final IProgressMonitor monitor) throws CoreException {
 		ensureJapidViewsDir();
+		TemplateTransformer.resetImports(getProject());
 		try {
 			getProject().accept(new ResourceVisitor());
 			JapidFullBuildCollector batchCompiler = new JapidFullBuildCollector();

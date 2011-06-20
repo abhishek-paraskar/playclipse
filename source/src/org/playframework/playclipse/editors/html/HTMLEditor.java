@@ -26,8 +26,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.playframework.playclipse.PlayPlugin;
 import org.playframework.playclipse.editors.PlayEditor;
 
+import cn.bran.japid.compiler.JapidParser;
+
 public class HTMLEditor extends PlayEditor {
 
+	private String MARKER = "`";
 	private static final String ACTION_IN_TAG2 = "action_in_tag";
 	private static final String INCLUDE2 = "include";
 	private static final String EXTENDS = "extends";
@@ -187,21 +190,21 @@ public class HTMLEditor extends PlayEditor {
 	// hyperlink method in Editor
 
 	static Pattern extend_s = Pattern.compile("#\\{extends\\s+'([^']+)'");
-	static Pattern extends_japid = Pattern.compile("[^`]?`\\s*extends\\s+'([^']+)'");
-	static Pattern extends_japid2 = Pattern.compile("[^`]?`\\s*extends\\s+\"([^\"]+)\"");
-	static Pattern extends_japid3 = Pattern.compile("[^`]?`\\s*extends\\s+([^\"\']+)");
-	static Pattern import_line = Pattern.compile("[^`]?`\\s*import\\s+([a-zA-Z0-9\\._]+)");
-	static Pattern import_static = Pattern.compile("[^`]?`\\s*import\\s+static\\s+([a-zA-Z0-9\\._]+)");
+	static Pattern extends_japid = Pattern.compile("[^`@]?[`@]\\s*extends\\s+'([^']+)'");
+	static Pattern extends_japid2 = Pattern.compile("[^`@]?[`@]\\s*extends\\s+\"([^\"]+)\"");
+	static Pattern extends_japid3 = Pattern.compile("[^`@]?[`@]\\s*extends\\s+([^\"\']+)");
+	static Pattern import_line = Pattern.compile("[^`@]?[`@]\\s*import\\s+([a-zA-Z0-9\\._]+)");
+	static Pattern import_static = Pattern.compile("[^`@]?[`@]\\s*import\\s+static\\s+([a-zA-Z0-9\\._]+)");
 	static Pattern include = Pattern.compile("#\\{include\\s+'([^']+)'");
 	static Pattern action_invoke = Pattern.compile("#\\{\\s*invoke\\s+([-a-zA-Z0-9\\._]+)");
-	static Pattern action_invoke2 = Pattern.compile("[^`]?`\\s*invoke\\s+([-a-zA-Z0-9\\\\._]+)");
-	static Pattern action_invoke3 = Pattern.compile("[^`]?`a\\s+([\\w\\d\\./]+)");
-	static Pattern action_invoke4 = Pattern.compile("[^`]?`\\s*action\\s+([\\w\\d\\./]+)");
+	static Pattern action_invoke2 = Pattern.compile("[^`@]?[`@]\\s*invoke\\s+([-a-zA-Z0-9\\\\._]+)");
+	static Pattern action_invoke3 = Pattern.compile("[^`@]?[`@]a\\s+([\\w\\d\\./]+)");
+	static Pattern action_invoke4 = Pattern.compile("[^`@]?[`@]\\s*action\\s+([\\w\\d\\./]+)");
 	static Pattern action = Pattern.compile("@\\{([^}]+)\\}");
 	static Pattern action_in_tag = Pattern.compile("#\\{.+(@.+[)])");
 	static Pattern playTag = Pattern.compile("#\\{([-a-zA-Z0-9\\./_]+)");
-	static Pattern japidTag = Pattern.compile("[^`]*`tag\\s+([\\w\\d\\./]+)");
-	static Pattern japidTagShort = Pattern.compile("[^`]*`t\\s+([\\w\\d\\./]+)");
+	static Pattern japidTag = Pattern.compile("[^`@]*[`@]tag\\s+([\\w\\d\\./]+)");
+	static Pattern japidTagShort = Pattern.compile("[^`@]*[`@]t\\s+([\\w\\d\\./]+)");
 
 	@Override
 	public IHyperlink detectHyperlink(ITextViewer textViewer, IRegion region) {
@@ -278,6 +281,9 @@ public class HTMLEditor extends PlayEditor {
 		super.reset();
 		consumeString = false;
 		oldState = DEFAULT;
+		//
+		char mar = JapidParser.detectMarker(content);
+		MARKER = new String(new char[] {mar});
 	}
 
 	@Override
@@ -312,11 +318,11 @@ public class HTMLEditor extends PlayEditor {
 				saveState();
 				return found(ACTION2, 0);
 			}
-			if (isNext("``")) {
+			if (isNext("``") || isNext("`@")) {
 //				return found(oldState, 2);
 				return found(state, 2);
 			}
-			if (isNext("`") && !isNext("``")) {
+			if (isNext(MARKER) && !isNext("``") && !isNext("`@")) {
 				saveState();
 				return found(JAVA_LINE, 0);
 			}
@@ -338,7 +344,7 @@ public class HTMLEditor extends PlayEditor {
 				offsetInJavaLine = 0;
 				return found(oldState, 1);
 			}
-			else if (isNext("`")) {
+			else if (isNext(MARKER)) {
 				if (offsetInJavaLine > 1) {
 					offsetInJavaLine = 0;
 					return found(oldState, 1);
